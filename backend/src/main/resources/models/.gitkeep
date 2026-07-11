@@ -1,0 +1,2 @@
+# ONNX model artifacts land here (classifier.onnx, salary.onnx, vocab.json).
+# *.onnx is gitignored; committed via a GitHub release asset if >100MB (see brief G).

@@ -1,0 +1,6 @@
+plugins {
+    // Lets the Java toolchain auto-provision a JDK 21 when the host JDK differs.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'scam-shield-backend'

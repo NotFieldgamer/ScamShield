@@ -1,0 +1,36 @@
+# ===== Secrets — never commit =====
+**/kaggle.json
+.env
+.env.local
+.env.*.local
+*.onnx
+
+# ===== Java / Gradle =====
+.gradle/
+**/build/
+# Keep the wrapper jar tracked so builds bootstrap without a local Gradle.
+!gradle/wrapper/gradle-wrapper.jar
+
+# ===== Node / Next.js (frontend, later phases) =====
+node_modules/
+.next/
+out/
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Logs =====
+*.log
+
+**/kaggle.json\n.env\n.env.local\n
+
+CLAUDE.md
