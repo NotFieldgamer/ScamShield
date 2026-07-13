@@ -1,0 +1,11 @@
+{
+  "residual_std_log": 1.7717842586061847,
+  "z_flag_threshold": 3.0,
+  "target": "log1p(midpoint)",
+  "cat_cols": [
+    "required_experience",
+    "required_education",
+    "employment_type",
+    "country"
+  ]
+}

@@ -4,6 +4,8 @@
 .env.local
 .env.*.local
 *.onnx
+!backend/src/main/resources/models/classifier.onnx
+!backend/src/main/resources/models/salary.onnx
 
 # ===== Java / Gradle =====
 .gradle/
