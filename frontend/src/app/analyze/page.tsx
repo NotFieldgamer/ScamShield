@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { TopBar } from "@/components/features/TopBar";
+import { SiteHeader } from "@/components/frame/SiteHeader";
 import { Analyzer } from "@/components/features/Analyzer";
 
 export const metadata: Metadata = {
@@ -9,9 +9,11 @@ export const metadata: Metadata = {
 
 export default function AnalyzePage() {
   return (
-    <main className="az-shell">
-      <TopBar />
-      <Analyzer />
-    </main>
+    <>
+      <SiteHeader />
+      <main className="az-shell">
+        <Analyzer />
+      </main>
+    </>
   );
 }

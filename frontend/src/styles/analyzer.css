@@ -2,9 +2,9 @@
  * (flag list, similar scams); glass is reserved for the posting card and verdict panel. */
 
 .az-shell {
-  max-width: 880px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 1.5rem 1.25rem 5rem;
+  padding: 2rem 1.25rem 5rem;
 }
 .az-topbar {
   display: flex;
@@ -181,10 +181,12 @@
     box-shadow 550ms ease;
 }
 .az-posting.is-lit .az-flagword {
+  /* Flagged phrases stay marked in vermillion evidence ink — the accent, not violet. Violet is
+   * reserved for the transient scan light (UvSweep) only. */
   color: var(--accent);
   font-weight: 600;
-  background: color-mix(in srgb, var(--uv-500) 20%, transparent);
-  box-shadow: 0 0 14px color-mix(in srgb, var(--uv-400) 42%, transparent);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 @media (prefers-reduced-motion: reduce) {
   .az-flagword {
@@ -354,5 +356,224 @@
 @media (prefers-reduced-motion: reduce) {
   .az-skel {
     animation: none;
+  }
+}
+
+/* =========================================================================
+ * Asymmetric two-column layout. LEFT (~55%) is the paste area; RIGHT (~45%)
+ * is the living panel. Tops are pinned (align-items: start) so the verdict
+ * resolves INSIDE the right panel and the left column never moves.
+ * ========================================================================= */
+.az-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+.az-head {
+  max-width: 60ch;
+}
+.az-grid {
+  display: grid;
+  grid-template-columns: 1.22fr 1fr; /* ≈ 55 / 45 */
+  gap: 1.5rem;
+  align-items: start;
+}
+.az-left {
+  padding: 1.4rem 1.5rem 1.5rem;
+}
+.az-input-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 0 0 0.3rem;
+}
+.az-input-help {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0 0 1rem;
+  max-width: 46ch;
+}
+.az-left .az-textarea {
+  min-height: 260px;
+}
+.az-input-actions {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+}
+.az-example-link {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+
+/* ---------- the living right panel ---------- */
+.az-right {
+  min-width: 0;
+}
+.az-panel {
+  position: relative;
+  overflow: hidden; /* clips the UV sweep to the card */
+  padding: 1.35rem 1.5rem 1.5rem;
+  min-height: 460px; /* ambient + analyzing hold this height; the verdict grows downward */
+}
+.az-panel-inner {
+  min-width: 0;
+}
+.az-panel-center {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 400px;
+}
+.az-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 0.7rem;
+}
+.az-skel-stack {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ---------- ambient (pre-submit) content ---------- */
+.az-ambient-lede {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0 0 1.5rem;
+}
+.az-ambient-flag {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+}
+.az-ambient-flag-term {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text);
+}
+.az-ambient-flag-val {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--signal-danger);
+}
+.az-ambient-caption {
+  margin: 0.5rem 0 0;
+  font-size: 0.74rem;
+  color: var(--text-faint);
+  line-height: 1.5;
+}
+.az-stat {
+  display: flex;
+  gap: 2.5rem;
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--hairline);
+}
+.az-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+.az-stat-num {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.az-stat-cap {
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ---------- verdict (post-submit) ---------- */
+.az-verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  animation: az-fade-in 320ms ease both;
+}
+@keyframes az-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .az-verdict {
+    animation: none;
+  }
+}
+.az-verdict-section {
+  min-width: 0;
+}
+.az-posting-well {
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+}
+.az-extra-signals {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.az-feedback-block {
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--hairline);
+}
+.az-feedback-note {
+  margin: 0 0 0.7rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-faint);
+}
+
+/* feedback toast tone (base .ss-toast lives in primitives.css) */
+.ss-toast.az-toast-err {
+  border-color: color-mix(in srgb, var(--signal-danger) 45%, var(--border));
+}
+.ss-toast.az-toast-ok {
+  border-color: color-mix(in srgb, var(--signal-verified) 45%, var(--border));
+}
+
+/* ---------- stack to one column on narrow / phone ---------- */
+@media (max-width: 900px) {
+  .az-grid {
+    grid-template-columns: 1fr;
+  }
+  .az-panel {
+    min-height: 0; /* no reserved empty height once stacked */
   }
 }

@@ -2,12 +2,15 @@
 
 import * as React from "react";
 import { analyze, ApiError, type AnalysisResponse, type AnalyzeKind } from "@/lib/api";
-import { GlassCard } from "@/components/glass/GlassCard";
-import { GlassPanel } from "@/components/glass/GlassPanel";
 import { UvSweep } from "@/components/glass/UvSweep";
 import { Button } from "@/components/primitives/Button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/primitives/ToggleGroup";
-import { VerdictView } from "./VerdictView";
+import { VerdictBanner } from "./VerdictBanner";
+import { HighlightedPosting } from "./HighlightedPosting";
+import { FlagList } from "./FlagList";
+import { SimilarScams } from "./SimilarScams";
+import { AmbientPanel } from "./AmbientPanel";
+import { Feedback } from "./Feedback";
 
 const CANONICAL_SCAM =
   "URGENT hiring! Work from home and earn $5000 per week, no experience needed. We are recruiting " +
@@ -22,12 +25,18 @@ export function Analyzer() {
   const [status, setStatus] = React.useState<Status>("idle");
   const [result, setResult] = React.useState<AnalysisResponse | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [runId, setRunId] = React.useState(0);
+  const [lit, setLit] = React.useState(false);
+  const panelRef = React.useRef<HTMLElement>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   async function onSubmit() {
     if (text.trim().length === 0) return;
     setStatus("analyzing");
     setError(null);
     setResult(null);
+    setLit(false);
+    setRunId((n) => n + 1);
     const started = performance.now();
     try {
       const data = await analyze(text, kind);
@@ -46,90 +55,186 @@ export function Analyzer() {
     }
   }
 
+  // Once the verdict resolves: fluoresce the flagged phrases, and on a phone (where the panel sits
+  // below the paste area) bring it into view. The paste column never moves, so nothing jumps.
+  React.useEffect(() => {
+    if (status !== "done" || !result) return;
+    const t = setTimeout(() => setLit(true), 160);
+    if (typeof window !== "undefined" && window.innerWidth < 900) {
+      const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      panelRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    }
+    return () => clearTimeout(t);
+  }, [status, result]);
+
   function reset() {
     setStatus("idle");
     setResult(null);
     setError(null);
+    setLit(false);
     setText("");
+    textareaRef.current?.focus();
   }
 
-  if (status === "done" && result) {
-    return (
-      <div className="az-stack">
-        <VerdictView data={result} />
-        <div>
-          <Button variant="ghost" size="sm" onClick={reset}>
-            Analyze another
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === "analyzing") {
-    // The signature moment: light sweeps the posting while the pipeline runs.
-    return (
-      <GlassPanel style={{ position: "relative" }}>
-        <UvSweep runId={1} />
-        <h2 className="az-section-title">Inspecting the posting…</h2>
-        <p className="az-posting">{text}</p>
-        <div style={{ marginTop: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-          <div className="az-skel" style={{ height: 14, width: "45%" }} />
-          <div className="az-skel" style={{ height: 14, width: "82%" }} />
-          <div className="az-skel" style={{ height: 14, width: "68%" }} />
-        </div>
-      </GlassPanel>
-    );
-  }
+  const extraSignals =
+    result != null && (result.salary?.implausible || result.typosquats.length > 0);
 
   return (
-    <GlassCard>
-      <h1 className="az-lede">Is this job real?</h1>
-      <p className="az-sub">
-        Paste a job posting or a recruiter&apos;s message. In under a second you&apos;ll see whether
-        it&apos;s likely a scam — and exactly what gave it away.
-      </p>
-      <textarea
-        className="az-textarea"
-        placeholder="Paste the posting or message here…"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        aria-label="Posting or message text"
-      />
-      <div className="az-input-row">
-        <ToggleGroup
-          type="single"
-          value={kind}
-          onValueChange={(v) => v && setKind(v as AnalyzeKind)}
-          aria-label="What are you pasting?"
-        >
-          <ToggleGroupItem value="POSTING">Job posting</ToggleGroupItem>
-          <ToggleGroupItem value="MESSAGE">Message</ToggleGroupItem>
-        </ToggleGroup>
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-          {text.trim().length === 0 && (
-            <button
-              type="button"
-              onClick={() => setText(CANONICAL_SCAM)}
-              style={{
-                background: "none",
-                border: 0,
-                cursor: "pointer",
-                color: "var(--accent)",
-                font: "inherit",
-                fontSize: "0.8rem",
-                textDecoration: "underline",
-              }}
+    <div className="az-wrap">
+      <header className="az-head">
+        <h1 className="az-lede">Is this job real?</h1>
+        <p className="az-sub">
+          Paste a job posting or a recruiter&apos;s message. In under a second you&apos;ll see whether
+          it&apos;s likely a scam — and exactly what gave it away.
+        </p>
+      </header>
+
+      <div className="az-grid">
+        {/* LEFT — the paste area, the primary action. It stays put across every state. */}
+        <section className="az-left surface-card">
+          <h2 className="az-input-title">Paste the posting</h2>
+          <p className="az-input-help">
+            A job post or a recruiter&apos;s message. It&apos;s analysed on submit — nothing is kept
+            against your name unless you&apos;re signed in.
+          </p>
+          <textarea
+            ref={textareaRef}
+            className="az-textarea"
+            placeholder="Paste the posting or message here…"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            aria-label="Posting or message text"
+          />
+          <div className="az-input-row">
+            <ToggleGroup
+              type="single"
+              value={kind}
+              onValueChange={(v) => v && setKind(v as AnalyzeKind)}
+              aria-label="What are you pasting?"
             >
-              Try an example
-            </button>
-          )}
-          <Button onClick={onSubmit} disabled={text.trim().length === 0}>
-            Analyze posting
-          </Button>
-        </div>
+              <ToggleGroupItem value="POSTING">Job posting</ToggleGroupItem>
+              <ToggleGroupItem value="MESSAGE">Message</ToggleGroupItem>
+            </ToggleGroup>
+            <div className="az-input-actions">
+              {text.trim().length === 0 && (
+                <button
+                  type="button"
+                  className="az-example-link"
+                  onClick={() => setText(CANONICAL_SCAM)}
+                >
+                  Try an example
+                </button>
+              )}
+              <Button
+                onClick={onSubmit}
+                disabled={text.trim().length === 0 || status === "analyzing"}
+              >
+                {status === "analyzing" ? "Analyzing…" : "Analyze posting"}
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* RIGHT — the living panel. Ambient content resolves INTO the verdict, in place. */}
+        <section className="az-right" ref={panelRef} aria-live="polite">
+          <div className="az-panel surface-card">
+            {status === "analyzing" && <UvSweep runId={runId} />}
+
+            {status === "idle" && <AmbientPanel />}
+
+            {status === "analyzing" && (
+              <div className="az-panel-inner">
+                <p className="az-eyebrow">Inspecting the posting…</p>
+                <HighlightedPosting text={text} phrases={[]} lit={false} />
+                <div className="az-skel-stack">
+                  <div className="az-skel" style={{ height: 14, width: "45%" }} />
+                  <div className="az-skel" style={{ height: 14, width: "82%" }} />
+                  <div className="az-skel" style={{ height: 14, width: "68%" }} />
+                </div>
+              </div>
+            )}
+
+            {status === "error" && (
+              <div className="az-panel-inner az-panel-center">
+                <p className="az-error">{error}</p>
+                <Button variant="ghost" size="sm" onClick={() => setStatus("idle")}>
+                  Back
+                </Button>
+              </div>
+            )}
+
+            {status === "done" && result && (
+              <div className="az-panel-inner az-verdict">
+                <VerdictBanner data={result} />
+
+                <div className="az-verdict-section">
+                  <p className="az-eyebrow">The posting</p>
+                  <div className="az-posting-well">
+                    <HighlightedPosting text={result.text} phrases={result.matchedPhrases} lit={lit} />
+                  </div>
+                </div>
+
+                <div className="az-verdict-section">
+                  <p className="az-eyebrow">Why it was flagged</p>
+                  <FlagList data={result} />
+                  {extraSignals && (
+                    <div className="az-extra-signals">
+                      {result.salary?.implausible && (
+                        <div className="az-flag-row">
+                          <span className="az-flag-main">
+                            <span className="az-flag-term">Salary implausibly high for the role</span>
+                            <span className="az-flag-kind">z-score</span>
+                          </span>
+                          <span className="az-flag-value az-flag-pos">
+                            {result.salary.zScore.toFixed(2)}σ
+                          </span>
+                        </div>
+                      )}
+                      {result.typosquats.map((t, i) => (
+                        <div className="az-flag-row" key={i}>
+                          <span className="az-flag-main">
+                            <span className="az-flag-term">
+                              {t.domain} → {t.legitimate}
+                            </span>
+                            <span className="az-flag-kind">typosquat</span>
+                          </span>
+                          <span className="az-flag-value az-flag-pos">edit&nbsp;{t.editDistance}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="az-verdict-section">
+                  <p className="az-eyebrow">Similar confirmed scams</p>
+                  <SimilarScams items={result.similarScams} />
+                </div>
+
+                <div className="az-footer">
+                  <span>
+                    model <b>{result.modelName}</b> v{result.modelVersion}
+                  </span>
+                  <span>
+                    <b>{result.latencyMs}</b> ms
+                  </span>
+                  {result.cached && <span>· cached</span>}
+                  <span>
+                    · verdict <b>{result.id.slice(0, 8)}</b>
+                  </span>
+                </div>
+
+                <Feedback postingId={result.postingId} />
+
+                <div>
+                  <Button variant="ghost" size="sm" onClick={reset}>
+                    Analyze another
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
       </div>
-      {error && <div className="az-error">{error}</div>}
-    </GlassCard>
+    </div>
   );
 }
