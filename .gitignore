@@ -33,6 +33,4 @@ Thumbs.db
 # ===== Logs =====
 *.log
 
-**/kaggle.json\n.env\n.env.local\n
-
 CLAUDE.md

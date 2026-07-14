@@ -53,8 +53,8 @@ Stateless, bearer-token, no server sessions.
   they are never reported as 500. _(Proven: `AuthFlowIT.aMalformedLoginBodyReturns400NotAServerError`.)_
 - **Actuator** exposes only `health` and `info`, and `info` does **not** expose OS/Java versions
   (reconnaissance material, CWE-200).
-- **Rate limiting.** A Redis token-bucket filter keys on IP for anonymous callers and on the user
-  for authenticated ones; the check-and-decrement is a single atomic Lua script. It **fails open**
+- **Rate limiting.** A Redis token-bucket filter keys on the caller's IP (for both anonymous and
+  authenticated callers); the check-and-decrement is a single atomic Lua script. It **fails open**
   if Redis is unreachable — a public analyzer should not 500 because the rate-limit store blipped.
 - **Content-hash dedup.** Identical postings return the cached verdict, which also blunts repeated
   submission as an abuse vector.
