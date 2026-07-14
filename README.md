@@ -15,8 +15,6 @@ confident"_, never _"This is a scam."_
 > decision threshold yourself to see the tradeoff between blocking real jobs and letting scams
 > through.
 
-![The analyzer verdict screen](docs/screenshot-analyze.png)
-
 ---
 
 ## Does it work?
