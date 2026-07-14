@@ -11,11 +11,7 @@ import { FlagList } from "./FlagList";
 import { SimilarScams } from "./SimilarScams";
 import { AmbientPanel } from "./AmbientPanel";
 import { Feedback } from "./Feedback";
-
-const CANONICAL_SCAM =
-  "URGENT hiring! Work from home and earn $5000 per week, no experience needed. We are recruiting " +
-  "immediately for a data entry role. To activate your account, send your bank account details and " +
-  "a $200 processing fee to start immediately. Guaranteed income. Contact us on WhatsApp today.";
+import { ANALYZE_HANDOFF_KEY, CANONICAL_SCAM } from "@/lib/handoff";
 
 type Status = "idle" | "analyzing" | "done" | "error";
 
@@ -29,6 +25,7 @@ export function Analyzer() {
   const [lit, setLit] = React.useState(false);
   const panelRef = React.useRef<HTMLElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const pendingAuto = React.useRef(false);
 
   async function onSubmit() {
     if (text.trim().length === 0) return;
@@ -66,6 +63,29 @@ export function Analyzer() {
     }
     return () => clearTimeout(t);
   }, [status, result]);
+
+  // A posting handed off from the landing hero: prefill it and run it once.
+  React.useEffect(() => {
+    let handoff: string | null = null;
+    try {
+      handoff = sessionStorage.getItem(ANALYZE_HANDOFF_KEY);
+      if (handoff) sessionStorage.removeItem(ANALYZE_HANDOFF_KEY);
+    } catch {
+      /* sessionStorage unavailable */
+    }
+    if (handoff && handoff.trim()) {
+      setText(handoff);
+      pendingAuto.current = true;
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (pendingAuto.current && text.trim() && status === "idle") {
+      pendingAuto.current = false;
+      void onSubmit();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, status]);
 
   function reset() {
     setStatus("idle");

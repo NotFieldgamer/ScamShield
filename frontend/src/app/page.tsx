@@ -8,9 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  return (
-    <main>
-      <Landing />
-    </main>
-  );
+  return <Landing />;
 }

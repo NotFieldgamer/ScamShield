@@ -4,31 +4,101 @@ import * as React from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SiteNav } from "@/components/features/SiteNav";
-import { Analyzer } from "@/components/features/Analyzer";
+import { SiteHeader } from "@/components/frame/SiteHeader";
+import { SiteFooter } from "@/components/frame/SiteFooter";
+import { LogoMark } from "@/components/brand/LogoMark";
+import { HeroPaste } from "./HeroPaste";
+
+/* The four flag categories, each with an icon drawn in the logo's language: geometric,
+ * single-weight strokes, inheriting the accent via currentColor. Every line of copy is real. */
+const CATCHES = [
+  {
+    key: "phrases",
+    title: "Known scam phrases",
+    body: "Advance-fee asks, requests for bank details, “guaranteed income” — matched against a registry of fraud phrases in a single pass of the text.",
+    icon: (
+      <>
+        <path d="M5 6H21a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H11l-4 3v-3H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" />
+        <path d="M7 10H19M7 13H15" />
+      </>
+    ),
+  },
+  {
+    key: "domains",
+    title: "Look-alike domains",
+    body: "A recruiter linking linkedln.com instead of linkedin.com is one edit away from the real thing — and edit distance catches it.",
+    icon: (
+      <>
+        <circle cx="14" cy="14" r="9" />
+        <path d="M14 5c-4 3.5-4 14 0 18M14 5c4 3.5 4 14 0 18" />
+        <path d="M5 14H23" />
+      </>
+    ),
+  },
+  {
+    key: "pay",
+    title: "Pay that doesn't add up",
+    body: "“Data entry, $5,000 a week” is caught by arithmetic: pay more than three standard deviations above the going rate for the role.",
+    icon: (
+      <>
+        <path d="M4 22H24" />
+        <path d="M4 11H24" strokeDasharray="2 2" />
+        <path d="M8 22V17M14 22V15M20 22V6" />
+      </>
+    ),
+  },
+  {
+    key: "language",
+    title: "Language the model has learned",
+    body: "Word and character patterns weighted as fraud during training — each shown with its exact contribution to the score, coefficient × tf-idf.",
+    icon: (
+      <>
+        <path d="M14 3 22 6V13C22 19 18.5 22.5 14 24 9.5 22.5 6 19 6 13V6Z" />
+        <path d="M10 11H18M10 14H15M10 17H16" />
+      </>
+    ),
+  },
+];
+
+function CatchIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <svg
+      className="lp-catch-icon"
+      width="28"
+      height="28"
+      viewBox="0 0 28 28"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  );
+}
 
 /**
- * The marketing page. The hero is a real, working analyzer — not a screenshot of one. Scroll
- * reveals are the only GSAP on the site; they degrade to plain visible content under
- * prefers-reduced-motion (and if JS never runs, since the sections are visible by default).
+ * The landing page. The tool's home is /analyze; the hero carries a live paste box that hands off
+ * there. Exactly one orchestrated scroll reveal exists on the whole page — the "What it catches"
+ * cards (section 3) — and it degrades to plain visible content under prefers-reduced-motion.
  */
 export function Landing() {
   const root = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      return; // sections stay visible; no motion
-    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // stay visible
     gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>(".lp-reveal").forEach((el) => {
+      // ONLY section 3 animates on scroll. Each category reveals as it is reached.
+      gsap.utils.toArray<HTMLElement>(".lp-catch-card").forEach((el) => {
         gsap.from(el, {
           opacity: 0,
-          y: 40,
-          duration: 0.7,
+          y: 28,
+          duration: 0.6,
           ease: "power2.out",
-          scrollTrigger: { trigger: el, start: "top 82%", once: true },
+          scrollTrigger: { trigger: el, start: "top 85%", once: true },
         });
       });
     }, root);
@@ -36,130 +106,132 @@ export function Landing() {
   }, []);
 
   return (
-    <div className="lp" ref={root}>
-      <SiteNav />
+    <div ref={root}>
+      <SiteHeader />
 
-      <section className="lp-hero">
-        <p className="lp-eyebrow">Online recruitment fraud, caught in under a second</p>
-        <div className="lp-hero-analyzer">
-          <Analyzer />
-        </div>
-        <p className="lp-scrollcue">Scroll to see how it works ↓</p>
-      </section>
+      <main className="lp">
+        {/* 1 — HERO: asymmetric, left-weighted. Not centered. */}
+        <section className="lp-hero">
+          <div className="lp-hero-copy">
+            <LogoMark size={44} className="lp-hero-mark" />
+            <p className="lp-eyebrow">Recruitment-fraud detection</p>
+            <h1 className="lp-hero-title">Is this job real?</h1>
+            <p className="lp-hero-sub">
+              Paste a job posting or a recruiter&apos;s message. In under a second you&apos;ll see
+              whether it&apos;s likely a scam — and exactly what gave it away.
+            </p>
+            <a className="lp-hero-cue" href="#how-it-works">
+              See how it works ↓
+            </a>
+          </div>
+          <div className="lp-hero-boxwrap">
+            <HeroPaste />
+          </div>
+        </section>
 
-      <section className="lp-section lp-reveal">
-        <h2>It reads a posting the way a forensic examiner would</h2>
-        <p className="lp-lead">
-          One paste runs a nine-step pipeline — none of it a black box. Every signal below is a real
-          computation you can trace, and the flags you see are the exact features that moved the
-          score.
-        </p>
-        <div className="lp-grid">
-          <div className="lp-card">
-            <span className="lp-tag">Aho–Corasick</span>
-            <h3>Known scam phrases</h3>
-            <p>
-              Thousands of fraud phrases matched in a single pass of the text — &quot;processing
-              fee&quot;, &quot;send your bank details&quot;, &quot;guaranteed income&quot;.
-            </p>
-          </div>
-          <div className="lp-card">
-            <span className="lp-tag">Levenshtein</span>
-            <h3>Look-alike domains</h3>
-            <p>
-              A recruiter linking <span className="lp-mono">linkedln.com</span> instead of{" "}
-              <span className="lp-mono">linkedin.com</span> is one edit away — and one red flag.
-            </p>
-          </div>
-          <div className="lp-card">
-            <span className="lp-tag">Calibrated logistic regression</span>
-            <h3>A score you can explain</h3>
-            <p>
-              A linear model over word + character TF-IDF. Each flag&apos;s weight is exactly
-              coefficient × tfidf — a true contribution, not a guess about a black box.
-            </p>
-          </div>
-          <div className="lp-card">
-            <span className="lp-tag">Ridge regression</span>
-            <h3>Pay that doesn&apos;t add up</h3>
-            <p>
-              &quot;Data entry, $5,000 a week&quot; is caught by arithmetic: a salary more than three
-              standard deviations above the going rate for the role.
-            </p>
-          </div>
-          <div className="lp-card">
-            <span className="lp-tag">pgvector · MiniLM</span>
-            <h3>Scams it has seen before</h3>
-            <p>
-              The posting is embedded and matched against confirmed frauds by cosine similarity — so
-              you see the three it most resembles.
-            </p>
-          </div>
-          <div className="lp-card">
-            <span className="lp-tag">Union-Find</span>
-            <h3>Reposts, clustered</h3>
-            <p>
-              Near-identical postings are grouped into campaigns — the same scam under a dozen
-              company names.
-            </p>
-          </div>
-        </div>
-      </section>
+        {/* 2 — HOW IT WORKS: three honest, ordered steps. */}
+        <section className="lp-section" id="how-it-works">
+          <p className="lp-kicker">How it works</p>
+          <ol className="lp-steps">
+            <li className="lp-step">
+              <span className="lp-step-num">1</span>
+              <div className="lp-step-body">
+                <h3>Paste the posting</h3>
+                <p>
+                  A job ad or a recruiter&apos;s message, in any format. It&apos;s analysed the moment
+                  you submit; nothing is stored against your name unless you sign in.
+                </p>
+              </div>
+            </li>
+            <li className="lp-step">
+              <span className="lp-step-num">2</span>
+              <div className="lp-step-body">
+                <h3>The model and the rules read it together</h3>
+                <p>
+                  A calibrated logistic-regression model over word and character tf-idf scores the
+                  language, while an Aho–Corasick pass matches known scam phrases, a Levenshtein check
+                  catches look-alike domains, and a salary check flags pay that doesn&apos;t add up —
+                  all in one request.
+                </p>
+              </div>
+            </li>
+            <li className="lp-step">
+              <span className="lp-step-num">3</span>
+              <div className="lp-step-body">
+                <h3>You get a verdict, with its reasons</h3>
+                <p>
+                  A hedged “Likely scam” with a calibrated confidence, the exact phrases that
+                  triggered it, each feature&apos;s weight in the score, and the confirmed scams it
+                  most resembles.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </section>
 
-      <section className="lp-section lp-reveal">
-        <h2>Why you can trust the number</h2>
-        <p className="lp-quote">
-          A model that always says &quot;legitimate&quot; is <b>95.2% accurate</b> on this data — and
-          catches <b>zero</b> scams.
-        </p>
-        <p className="lp-lead">
-          That is why we never headline accuracy. Only 4.8% of the postings are fraudulent, so the
-          honest questions are: of the jobs we flag, how many are really scams (precision), and of
-          all the scams, how many do we catch (recall)? The probabilities are calibrated — when it
-          says 87%, roughly 87% of such postings really are scams. Move the threshold yourself and
-          watch the tradeoff between blocking real jobs and letting scams through.
-        </p>
-        <div className="lp-actions">
-          <Link className="ss-btn ss-btn-primary" href="/model">
-            See the model&apos;s real performance
-          </Link>
-          <Link className="ss-btn ss-btn-ghost" href="/trends">
-            What&apos;s rising this month
-          </Link>
-        </div>
-      </section>
+        {/* 3 — WHAT IT CATCHES: the one scroll reveal on the page. */}
+        <section className="lp-section">
+          <p className="lp-kicker">What it catches</p>
+          <div className="lp-catch">
+            {CATCHES.map((c) => (
+              <div className="lp-catch-card surface-card" key={c.key}>
+                <CatchIcon>{c.icon}</CatchIcon>
+                <h3>{c.title}</h3>
+                <p>{c.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-      <section className="lp-section lp-reveal">
-        <h2>It never says &quot;this is a scam&quot;</h2>
-        <p className="lp-lead">
-          The verdict is always &quot;Likely scam&quot;, with a confidence — never a flat assertion.
-          Branding a real employer a fraudster is a defamation risk we won&apos;t take, and a
-          probability is the honest thing to show. The product protects job seekers without
-          pretending to be certain.
-        </p>
-        <div className="lp-actions">
-          <Link className="ss-btn ss-btn-primary" href="/analyze">
-            Analyze a posting
-          </Link>
-          <Link className="ss-btn ss-btn-ghost" href="/campaigns">
-            Browse scam campaigns
-          </Link>
-        </div>
-      </section>
+        {/* 4 — SEE IT WORK: a cropped real verdict. Proof, not a promise. */}
+        <section className="lp-section">
+          <p className="lp-kicker">See it work</p>
+          <figure className="lp-proof">
+            <img
+              className="lp-proof-img"
+              src="/verdict-sample.png"
+              alt="A Scam Shield verdict: a Likely-scam banner at 99.5% confidence, the posting with flagged phrases highlighted, and the ranked feature contributions with their coefficient-times-tf-idf weights."
+              width={1024}
+              height={900}
+              loading="lazy"
+            />
+            <figcaption className="lp-proof-cap">
+              A verdict on the canonical example posting — the flagged phrases and each feature&apos;s
+              contribution to the score (coefficient × tf-idf). Paste your own and the analyzer
+              computes the same for it.
+            </figcaption>
+          </figure>
+        </section>
 
-      <footer className="lp-footer">
-        <div className="lp-footer-links">
-          <Link href="/analyze">Analyze</Link>
-          <Link href="/model">Model</Link>
-          <Link href="/trends">Trends</Link>
-          <Link href="/campaigns">Campaigns</Link>
-          <Link href="/login">Sign in</Link>
-        </div>
-        <p style={{ margin: 0 }}>
-          Java · Spring Boot · ONNX Runtime · PostgreSQL + pgvector · Redis · Next.js. Every number on
-          screen traces to a computation. We accept pasted text only — we never scrape.
-        </p>
-      </footer>
+        {/* 5 — HONEST LIMITS: required, from the model card. The differentiator. */}
+        <section className="lp-section lp-limits">
+          <p className="lp-kicker">Honest limits</p>
+          <p className="lp-limits-text">
+            It can be evaded by rewording, and it reads language patterns — not a company registry. It
+            can tell you a posting resembles known fraud; it can never confirm that a company is real,
+            or that a job is safe. That is exactly why the verdict is always{" "}
+            <em>“Likely scam,”</em> with a confidence, and never <em>“This is a scam.”</em>
+          </p>
+        </section>
+
+        {/* 6 — CTA */}
+        <section className="lp-section lp-cta">
+          <h2 className="lp-cta-title">Check a posting</h2>
+          <p className="lp-lead">
+            Paste a job ad or a recruiter&apos;s message and see what the model finds.
+          </p>
+          <div className="lp-cta-actions">
+            <Link className="ss-btn ss-btn-primary" href="/analyze">
+              Check a posting
+            </Link>
+            <Link className="ss-btn ss-btn-ghost" href="/login">
+              Sign in for history
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter />
     </div>
   );
 }
