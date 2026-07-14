@@ -547,6 +547,11 @@
   font-family: var(--font-mono);
 }
 
+/* skeleton card placeholder (matches .hist-card padding) */
+.sk-card {
+  padding: 1rem 1.1rem;
+}
+
 /* ---------- bulk scan (owner-only): upload + results ---------- */
 .bulk-upload {
   display: flex;

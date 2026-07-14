@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { type ReportSummary } from "@/lib/api";
 import { pendingReports, reclusterCampaigns, resolveReport, useSession } from "@/lib/auth";
+import { PanelSkeleton, TableSkeleton } from "@/components/features/Skeletons";
 import { cn } from "@/lib/utils";
 
 export function ModerationQueue() {
@@ -48,7 +49,7 @@ export function ModerationQueue() {
     }
   }
 
-  if (loading) return <div className="p7-panel">Checking your session…</div>;
+  if (loading) return <PanelSkeleton lines={2} label="Checking your session…" />;
 
   if (!canModerate) {
     return (
@@ -79,7 +80,7 @@ export function ModerationQueue() {
       {notice && <p className="p7-form-ok" style={{ marginBottom: "1rem" }}>{notice}</p>}
       {error && <p className="p7-form-error" style={{ marginBottom: "1rem" }}>{error}</p>}
 
-      {!reports && <div className="p7-panel">Loading queue…</div>}
+      {!reports && <TableSkeleton rows={5} label="Loading the report queue…" />}
 
       {reports && reports.length === 0 && (
         <div className="p7-empty">

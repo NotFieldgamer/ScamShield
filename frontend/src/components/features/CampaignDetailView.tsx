@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getCampaign, type CampaignDetail } from "@/lib/api";
+import { PanelSkeleton } from "@/components/features/Skeletons";
 
 export function CampaignDetailView() {
   const params = useParams<{ id: string }>();
@@ -31,7 +32,7 @@ export function CampaignDetailView() {
       </div>
     );
   }
-  if (!data) return <div className="p7-panel">Loading campaign…</div>;
+  if (!data) return <PanelSkeleton lines={3} label="Loading campaign…" />;
 
   return (
     <>

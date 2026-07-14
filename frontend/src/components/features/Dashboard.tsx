@@ -278,7 +278,6 @@ export function Dashboard() {
                 <span className="dash-card-icon">{card.icon}</span>
                 <h3>{card.title}</h3>
                 <p>{card.summary}</p>
-                <span className="dash-card-cue">Open</span>
               </motion.button>
             ))}
           </div>

@@ -120,9 +120,6 @@ export function Landing() {
               Paste a job posting or a recruiter&apos;s message. In under a second you&apos;ll see
               whether it&apos;s likely a scam — and exactly what gave it away.
             </p>
-            <a className="lp-hero-cue" href="#how-it-works">
-              See how it works ↓
-            </a>
           </div>
           <div className="lp-hero-boxwrap">
             <HeroPaste />

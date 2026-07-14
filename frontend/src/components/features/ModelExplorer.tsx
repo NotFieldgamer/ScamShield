@@ -15,13 +15,13 @@ import {
   YAxis,
 } from "recharts";
 import { Slider } from "@/components/primitives/Slider";
+import { PanelSkeleton } from "@/components/features/Skeletons";
 import { getModelMetrics, pct, type ModelMetrics, type ThresholdPoint } from "@/lib/api";
 
 // Fixed brand colors — vivid enough to read in both themes (the signal ramp is verdict-only,
 // the UV accent is interaction-only, both honored here).
 const UV = "#7c6bff";
 const DANGER = "#f2545b";
-const VERIFIED = "#2ed3a0";
 const CAUTION = "#f2a03d";
 const GRIDLINE = "rgba(128,132,148,0.25)";
 const AXIS = "#8b90a0";
@@ -51,7 +51,7 @@ export function ModelExplorer() {
     );
   }
   if (!metrics) {
-    return <div className="p7-panel">Loading model metrics…</div>;
+    return <PanelSkeleton lines={4} label="Loading model metrics…" />;
   }
   if (!metrics.hasPredictions) {
     return (
@@ -221,36 +221,6 @@ export function ModelExplorer() {
                   isAnimationActive={false}
                 />
                 <ReferenceDot x={point.recall} y={point.precision} r={5} fill={UV} stroke="#fff" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="p7-panel">
-          <p className="p7-chart-title">ROC curve</p>
-          <p className="p7-chart-note">True-positive rate against false-positive rate.</p>
-          <div className="p7-chart">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart margin={{ top: 8, right: 12, bottom: 24, left: 4 }}>
-                <CartesianGrid stroke={GRIDLINE} />
-                <XAxis
-                  type="number"
-                  dataKey="fpr"
-                  domain={[0, 1]}
-                  stroke={AXIS}
-                  tick={{ fontSize: 11, fill: AXIS }}
-                  label={{ value: "false-positive rate", position: "insideBottom", offset: -12, fill: AXIS, fontSize: 11 }}
-                />
-                <YAxis
-                  type="number"
-                  domain={[0, 1]}
-                  stroke={AXIS}
-                  tick={{ fontSize: 11, fill: AXIS }}
-                  label={{ value: "TPR", angle: -90, position: "insideLeft", fill: AXIS, fontSize: 11 }}
-                />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => v.toFixed(3)} labelFormatter={() => ""} />
-                <ReferenceLine segment={[{ x: 0, y: 0 }, { x: 1, y: 1 }]} stroke={AXIS} strokeDasharray="4 4" />
-                <Line data={metrics.roc} dataKey="tpr" stroke={VERIFIED} strokeWidth={2} dot={false} isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

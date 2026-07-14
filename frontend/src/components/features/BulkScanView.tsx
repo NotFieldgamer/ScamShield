@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { analyzeBulk } from "@/lib/auth";
 import { pct, type BulkResult, type Label } from "@/lib/api";
+import { TableSkeleton } from "@/components/features/Skeletons";
 import { cn } from "@/lib/utils";
 
 const BADGE: Record<Label, string> = {
@@ -79,13 +80,11 @@ export function BulkScanView() {
         {error && <p className="p7-form-error">{error}</p>}
       </div>
 
+      {busy && <TableSkeleton rows={4} label="Scanning your file…" />}
+
       {result && (
         <>
           <div className="p7-stats bulk-summary">
-            <div className="p7-stat">
-              <span className="p7-stat-num tone-accent">{result.total}</span>
-              <span className="p7-stat-label">postings scanned</span>
-            </div>
             <div className="p7-stat">
               <span className="p7-stat-num tone-danger">{result.scam}</span>
               <span className="p7-stat-label">likely scam</span>

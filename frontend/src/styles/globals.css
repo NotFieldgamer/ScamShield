@@ -47,6 +47,53 @@ body {
   border-radius: 6px;
 }
 
+/* Visually hidden, still announced to assistive tech (skeleton status labels, etc.). */
+.ss-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- skeleton loaders: async surfaces show shape, not a spinner ---------- */
+.skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-inset);
+  border-radius: var(--radius-sm);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  /* UV highlight — motion only, per the palette rule; never a resting color. */
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--uv-500) 16%, transparent),
+    transparent
+  );
+  animation: ss-skeleton-sweep 1.3s ease-in-out infinite;
+}
+@keyframes ss-skeleton-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+/* Reduced motion: no sweep — a static placeholder still communicates "loading" by its shape. */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    display: none;
+  }
+}
+
 /* Data — every score, probability, and latency is monospaced so numbers read as evidence. */
 .data {
   font-family: var(--font-mono);

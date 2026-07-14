@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { auditLog, useSession, type AuditEntry } from "@/lib/auth";
+import { PanelSkeleton, TableSkeleton } from "@/components/features/Skeletons";
 
 export function AuditLogView() {
   const { me, loading } = useSession();
@@ -18,7 +19,7 @@ export function AuditLogView() {
       .catch((e) => setError(e.message ?? "Could not load the audit log."));
   }, [isAdmin]);
 
-  if (loading) return <div className="p7-panel">Checking your session…</div>;
+  if (loading) return <PanelSkeleton lines={2} label="Checking your session…" />;
 
   if (!isAdmin) {
     return (
@@ -44,7 +45,7 @@ export function AuditLogView() {
       </div>
     );
   }
-  if (!entries) return <div className="p7-panel">Loading audit log…</div>;
+  if (!entries) return <TableSkeleton rows={8} label="Loading audit log…" />;
 
   return (
     <div className="p7-panel">

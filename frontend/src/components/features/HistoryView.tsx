@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { getMyAnalyses } from "@/lib/auth";
 import { pct, type AnalysisSummary, type Label } from "@/lib/api";
+import { CardGridSkeleton } from "@/components/features/Skeletons";
 import { cn } from "@/lib/utils";
 
 const FILTERS: { v: "ALL" | Label; l: string }[] = [
@@ -55,7 +56,7 @@ export function HistoryView() {
       </div>
     );
   }
-  if (!data) return <div className="p7-panel">Loading your history…</div>;
+  if (!data) return <CardGridSkeleton count={6} label="Loading your history…" />;
 
   if (data.length === 0) {
     return (
@@ -117,7 +118,6 @@ export function HistoryView() {
             <Link key={a.id} href={`/analysis/${a.id}`} className="hist-card surface-card">
               <div className="hist-card__head">
                 <span className={cn("p7-badge", BADGE[a.label])}>{LABEL_TEXT[a.label]}</span>
-                <span className="p7-badge">{a.source === "MESSAGE" ? "Message" : "Posting"}</span>
               </div>
               <p className="hist-card__snippet">{a.snippet || "(no text)"}</p>
               <div className="hist-card__foot">

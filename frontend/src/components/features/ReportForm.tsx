@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { type Claim } from "@/lib/api";
 import { submitReport, useSession } from "@/lib/auth";
+import { PanelSkeleton } from "@/components/features/Skeletons";
 
 export function ReportForm() {
   const params = useParams<{ postingId: string }>();
@@ -31,7 +32,7 @@ export function ReportForm() {
     }
   }
 
-  if (loading) return <div className="p7-panel">Checking your session…</div>;
+  if (loading) return <PanelSkeleton lines={2} label="Checking your session…" />;
 
   if (!me) {
     return (

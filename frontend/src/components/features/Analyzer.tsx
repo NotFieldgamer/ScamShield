@@ -112,7 +112,6 @@ export function Analyzer() {
       <div className="az-grid">
         {/* LEFT — the paste area, the primary action. It stays put across every state. */}
         <section className="az-left surface-card">
-          <h2 className="az-input-title">Paste the posting</h2>
           <p className="az-input-help">
             A job post or a recruiter&apos;s message. It&apos;s analysed on submit — nothing is kept
             against your name unless you&apos;re signed in.

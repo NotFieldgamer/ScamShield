@@ -9,6 +9,8 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/primitives/Dialog";
+import { Skeleton } from "@/components/primitives/Skeleton";
+import { CardGridSkeleton } from "@/components/features/Skeletons";
 
 export function CampaignsView() {
   const [data, setData] = React.useState<CampaignSummary[] | null>(null);
@@ -29,7 +31,7 @@ export function CampaignsView() {
       </div>
     );
   }
-  if (!data) return <div className="p7-panel">Loading campaigns…</div>;
+  if (!data) return <CardGridSkeleton count={6} label="Loading campaigns…" />;
 
   if (data.length === 0) {
     return (
@@ -60,7 +62,6 @@ export function CampaignsView() {
           >
             <div className="p7-cluster-card__head">
               <span className="p7-badge p7-badge-scam">{c.memberCount} reposts</span>
-              <span className="p7-threshold-cap">#{c.id}</span>
             </div>
             <p className="p7-cluster-card__label">{c.label}</p>
             <span className="p7-stat-sub">Open cluster →</span>
@@ -132,7 +133,23 @@ function ClusterDetail({ id }: { id: number }) {
       </DialogDescription>
 
       {error && <p className="p7-form-error">{error}</p>}
-      {!error && !detail && <p className="p7-panel-note">Loading cluster…</p>}
+      {!error && !detail && (
+        <div
+          className="p7-cluster-dialog__scroll"
+          role="status"
+          aria-busy="true"
+          aria-label="Loading cluster…"
+        >
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div className="p7-cluster-member" key={i}>
+              <Skeleton style={{ height: 12, width: "30%" }} />
+              <Skeleton style={{ height: 12, width: "100%", marginTop: 10 }} />
+              <Skeleton style={{ height: 12, width: "78%", marginTop: 6 }} />
+            </div>
+          ))}
+          <span className="ss-sr-only">Loading cluster…</span>
+        </div>
+      )}
 
       {detail && (
         <div className="p7-cluster-dialog__scroll">

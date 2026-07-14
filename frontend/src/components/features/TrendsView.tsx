@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { getTrends, signed, type Trends } from "@/lib/api";
+import { TableSkeleton } from "@/components/features/Skeletons";
 import { cn } from "@/lib/utils";
 
 const RANGES = [
@@ -45,7 +46,7 @@ export function TrendsView() {
         </div>
       )}
 
-      {!error && !data && <div className="p7-panel">Loading trends…</div>}
+      {!error && !data && <TableSkeleton rows={6} label="Loading trends…" />}
 
       {data && data.patterns.length === 0 && (
         <div className="p7-empty">
@@ -72,7 +73,6 @@ export function TrendsView() {
                 <tr>
                   <th>Pattern</th>
                   <th style={{ textAlign: "right" }}>This window</th>
-                  <th style={{ textAlign: "right" }}>Previous</th>
                   <th style={{ textAlign: "right" }}>Change</th>
                   <th style={{ textAlign: "right" }}>Avg log-odds</th>
                 </tr>
@@ -83,9 +83,6 @@ export function TrendsView() {
                     <td className="p7-mono">{p.feature}</td>
                     <td className="p7-num" style={{ textAlign: "right" }}>
                       {p.count.toLocaleString()}
-                    </td>
-                    <td className="p7-num" style={{ textAlign: "right", color: "var(--text-faint)" }}>
-                      {p.previousCount.toLocaleString()}
                     </td>
                     <td className="p7-num" style={{ textAlign: "right" }}>
                       <Delta delta={p.delta} />

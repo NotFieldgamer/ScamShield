@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth";
+import { PanelSkeleton } from "@/components/features/Skeletons";
 
 /**
  * Client-side gate for owner-only pages. It sends a signed-out visitor to /login with a `next` back
@@ -22,7 +23,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
   }, [loading, me, router, loginHref]);
 
   if (loading) {
-    return <div className="p7-panel">Checking your session…</div>;
+    return <PanelSkeleton lines={2} label="Checking your session…" />;
   }
   if (!me) {
     return (
