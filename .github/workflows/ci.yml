@@ -23,6 +23,15 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      # The MiniLM embedding model (~90 MB) is gitignored, so the tests — which load the full
+      # Spring context and build the real EmbeddingService — need it fetched here onto the
+      # classpath. Uses the EMBEDDING_MODEL_URL secret/variable if set (the same URL used for the
+      # Render build), else a public all-MiniLM-L6-v2 ONNX (verified compatible with the pipeline).
+      - name: Fetch MiniLM embedding model
+        env:
+          MODEL_URL: ${{ secrets.EMBEDDING_MODEL_URL || vars.EMBEDDING_MODEL_URL || 'https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/onnx/model.onnx' }}
+        run: curl -fSL "$MODEL_URL" -o src/main/resources/models/minilm.onnx
+
       # GitHub-hosted ubuntu runners ship a running Docker daemon, which
       # Testcontainers uses to start Postgres + pgvector for the integration test.
       - name: Test
