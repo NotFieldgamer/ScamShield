@@ -91,7 +91,7 @@ public class AnalysisService {
         this.audit = audit;
     }
 
-    public AnalysisResponse analyze(String text, String kind, String callerKey, String ip) {
+    public AnalysisResponse analyze(Long ownerId, String text, String kind, String callerKey, String ip) {
         Map<String, Long> timings = new LinkedHashMap<>();
         long start = System.nanoTime();
 
@@ -147,11 +147,11 @@ public class AnalysisService {
             UUID verdictId;
             UUID postingId;
             try {
-                postingId = repo.insertPosting(null, text, source, hash);
+                postingId = repo.insertPosting(ownerId, text, source, hash);
                 verdictId = repo.insertVerdict(postingId, activeModel().id(), calibrated, label, latencyMs);
                 repo.insertFeatures(verdictId, contributions);
                 vectorSearch.savePostingEmbedding(postingId, emb);
-                audit.record(null, "ANALYZE", "POSTING", postingId.toString(), ip);
+                audit.record(ownerId, "ANALYZE", "POSTING", postingId.toString(), ip);
             } catch (DuplicateKeyException race) {
                 // Another request persisted the same content_hash first; return its verdict.
                 return repo.findByContentHash(hash)
@@ -172,9 +172,17 @@ public class AnalysisService {
         }
     }
 
-    public AnalysisResponse getById(UUID verdictId) {
+    public AnalysisResponse getById(UUID verdictId, Long requesterId) {
         StoredVerdict stored = repo.findVerdictById(verdictId)
                 .orElseThrow(() -> new NotFoundException("analysis " + verdictId + " not found"));
+        // Object-level authorization: an owned analysis is visible only to its owner. Anonymous
+        // analyses (ownerId == null) remain public shareable permalinks. A cross-user request is
+        // reported as 404 — identical to a missing id — so the endpoint never reveals that another
+        // user's analysis exists.
+        Long ownerId = stored.ownerId();
+        if (ownerId != null && !ownerId.equals(requesterId)) {
+            throw new NotFoundException("analysis " + verdictId + " not found");
+        }
         return fromStored(stored, stored.rawText(), new LinkedHashMap<>(), true);
     }
 

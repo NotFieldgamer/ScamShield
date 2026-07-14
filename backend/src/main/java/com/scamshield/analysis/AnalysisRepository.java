@@ -30,9 +30,11 @@ public class AnalysisRepository {
     }
 
     // Every verdict query joins model_versions so the response can name the model that produced it.
+    // p.user_id (owner_id) is selected so the service can enforce object-level authorization: an
+    // owned analysis is visible only to its owner (a NULL owner is an anonymous, public permalink).
     private static final String VERDICT_SELECT =
-            "SELECT v.id vid, v.posting_id pid, p.raw_text, p.source, v.probability, v.label, "
-                    + "v.latency_ms, mv.name model_name, mv.version model_version "
+            "SELECT v.id vid, v.posting_id pid, p.raw_text, p.source, p.user_id owner_id, "
+                    + "v.probability, v.label, v.latency_ms, mv.name model_name, mv.version model_version "
                     + "FROM verdicts v JOIN postings p ON p.id = v.posting_id "
                     + "JOIN model_versions mv ON mv.id = v.model_version_id ";
 
@@ -97,6 +99,7 @@ public class AnalysisRepository {
                 (UUID) rs.getObject("pid"),
                 rs.getString("raw_text"),
                 rs.getString("source"),
+                rs.getObject("owner_id", Long.class),
                 rs.getDouble("probability"),
                 rs.getString("label"),
                 rs.getInt("latency_ms"),
@@ -104,7 +107,7 @@ public class AnalysisRepository {
                 rs.getString("model_version"));
     }
 
-    public record StoredVerdict(UUID verdictId, UUID postingId, String rawText, String source,
+    public record StoredVerdict(UUID verdictId, UUID postingId, String rawText, String source, Long ownerId,
                                 double probability, String label, int latencyMs,
                                 String modelName, String modelVersion) {}
 
