@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./tokens.css";
 @import "./glass.css";
+@import "./frame.css";
 @import "./primitives.css";
 @import "./analyzer.css";
 @import "./phase7.css";
@@ -23,12 +24,16 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   background-color: var(--bg);
-  /* A UV glow at the top over the ink gradient. This is the controlled backdrop that text-on-
-   * glass contrast is measured against — glass never floats over an arbitrary photo. */
+  /* Ambient plane: a warm mesh, weighted to the upper-left (reinforcing the left-heavy layout),
+   * over an edge vignette that keeps the corners darkest — the surface is never flat. This is the
+   * controlled backdrop that text-on-glass contrast is measured against; glass never floats over
+   * an arbitrary photo. */
   background-image:
-    radial-gradient(130% 90% at 50% -20%, var(--bg-glow), transparent 60%),
-    linear-gradient(180deg, var(--bg-gradient-1), var(--bg-gradient-2));
+    radial-gradient(80% 55% at 18% 8%, var(--bg-haze), transparent 60%),
+    radial-gradient(70% 60% at 96% 20%, var(--bg-haze-2), transparent 62%),
+    radial-gradient(140% 130% at 50% 42%, transparent 52%, var(--bg-edge) 100%);
   background-attachment: fixed;
+  background-repeat: no-repeat;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }

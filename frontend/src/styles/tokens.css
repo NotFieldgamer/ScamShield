@@ -1,118 +1,194 @@
-/* tokens.css — Scam Shield design tokens.
+/* tokens.css — Scam Shield design tokens (forensic-dossier redesign).
  *
- * The raw palette and radii below are verbatim from the build brief and are never themed.
- * Semantic tokens (surface, text, border, accent, glass-*) layer on top and flip between
- * dark and light. Components reference ONLY the semantic tokens, never the raw ramp — that
- * is what keeps the two themes in lockstep. */
+ * Two tiers:
+ *   1. Raw palette — the warm forensic ramp. Plus a small LEGACY block (ink / fog / uv) kept so the
+ *      pre-redesign sheets (analyzer.css, phase7.css, primitives.css) still resolve. The UV violet
+ *      now exists ONLY as the ephemeral scan / "develop" light in motion (the sweep, the skeleton
+ *      shimmer) — never a resting surface or accent color. That removal is what breaks the
+ *      deep-ink-plus-one-violet AI cluster.
+ *   2. Semantic tokens — surface / text / border / accent / signal / depth. Components reference
+ *      ONLY these, so the two themes flip in lockstep and the whole app re-themes from here.
+ */
 
 :root {
-  /* ----- Raw palette (from the brief — do not theme these) ----- */
-  --ink-900: #08090c;
-  --ink-800: #0e1016;
-  --ink-700: #161922;
-  --fog-50: #f7f8fa;
-  --fog-100: #eff1f5;
-  --fog-200: #e2e5eb;
+  /* ----- Warm forensic palette (redesign) ----- */
+  --pitch-900: #120f0a; /* deepest — the vignetted edge */
+  --pitch-800: #17130f; /* canvas base: warm brown-black, NOT blue-black */
+  --pitch-700: #1f1a14;
+  --umber-700: #2a241c; /* elevated content-layer card — paper, never pure black */
+  --umber-600: #342d23;
+  --umber-500: #463d30;
 
+  --bone-50: #f4efe3;
+  --bone-100: #ece6d8; /* primary text on dark */
+  --bone-200: #ddd5c4;
+
+  --vermillion-400: #ef6a48;
+  --vermillion-500: #e1452b; /* STRUCTURAL CO-LEAD: the mark, rules, tags, and the danger verdict */
+  --vermillion-600: #c1361f;
+
+  --saffron-500: #e0a13a;
+  --saffron-600: #b9781e;
+
+  --verdigris-500: #57a08a; /* verified — aged security-ink green, not SaaS mint */
+  --verdigris-600: #3f7d6b;
+
+  /* ----- Legacy raw palette — kept only so pre-redesign sheets resolve ----- */
+  --ink-900: #08090c;
+  --fog-50: #f7f8fa;
+  /* UV violet: MOTION ONLY (scan sweep / develop flash / skeleton shimmer). Never at rest. */
   --uv-400: #9b8cff;
   --uv-500: #7c6bff;
   --uv-600: #5e4be0;
 
-  --signal-danger: #f2545b;
-  --signal-caution: #f2a03d;
-  --signal-verified: #2ed3a0;
-
-  /* ----- Radii (verbatim) ----- */
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+  /* ----- Radii — tightened from the glass era for a printed-document feel ----- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
   --radius-pill: 999px;
 
-  /* ----- Type families (the actual faces are assigned by next/font) ----- */
-  --font-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
-  --font-body: var(--font-inter), Inter, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+  /* ----- Type families (the actual faces are assigned by next/font in layout.tsx) ----- */
+  --font-display: var(--font-redaction), "Redaction", Georgia, "Times New Roman", serif;
+  --font-body: var(--font-public), "Public Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-commit), "Commit Mono", ui-monospace, "SFMono-Regular", monospace;
 
-  /* The UV violet is the only interactive/inspection accent; the focus ring is always it. */
-  --focus-ring: var(--uv-400);
+  /* ----- Type scale ----- */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.1875rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.75rem;
+  --text-display: clamp(2.6rem, 5.5vw, 4rem);
+  --leading-tight: 1.12;
+  --leading-snug: 1.32;
+  --leading-normal: 1.55;
+  --tracking-tight: -0.015em;
+  --tracking-wide: 0.14em; /* mono eyebrow labels */
 }
 
 /* ------------------------------------------------------------------ *
- * Dark is the default theme. Attribute selectors (not :root-scoped)   *
- * so a subtree can force a theme — the kitchen-sink shows both at     *
- * once by setting data-theme on two columns.                          *
+ * Dark is the default theme. Attribute selectors (not :root-only) so a *
+ * subtree can force a theme — the kitchen-sink shows both at once by    *
+ * setting data-theme on each column.                                   *
  * ------------------------------------------------------------------ */
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: var(--ink-900);
-  --bg-gradient-1: #0b0d15;
-  --bg-gradient-2: #0f1320;
-  --bg-glow: color-mix(in srgb, var(--uv-600) 22%, transparent);
+  /* ambient background: a warm mesh over an edge vignette (darkest at the corners) */
+  --bg: var(--pitch-800);
+  --bg-edge: var(--pitch-900);
+  --bg-haze: color-mix(in srgb, #3c3122 60%, transparent); /* warm upper-left haze */
+  --bg-haze-2: color-mix(in srgb, var(--verdigris-600) 10%, transparent);
 
-  /* Tint source the glass recipe mixes with transparent. */
-  --surface: #ffffff;
-  --surface-raised: #171b26; /* opaque menus / popovers / tooltips — kept crisp, not glass */
-  --surface-inset: #10131b;
+  /* glass tint source (kept for the capped-two-layer glass recipe) */
+  --surface: var(--bone-50);
+  --surface-raised: var(--umber-700); /* the content-layer card */
+  --surface-inset: #120e0a;
 
-  --text: var(--fog-50);
-  --text-muted: color-mix(in srgb, var(--fog-50) 66%, transparent);
-  --text-faint: color-mix(in srgb, var(--fog-50) 42%, transparent);
+  --text: var(--bone-100);
+  --text-muted: color-mix(in srgb, var(--bone-100) 64%, transparent);
+  --text-faint: color-mix(in srgb, var(--bone-100) 40%, transparent);
 
-  --border: color-mix(in srgb, #ffffff 12%, transparent);
-  --border-strong: color-mix(in srgb, #ffffff 24%, transparent);
+  --border: color-mix(in srgb, var(--bone-100) 13%, transparent);
+  --border-strong: color-mix(in srgb, var(--bone-100) 24%, transparent);
+  --hairline: color-mix(in srgb, var(--bone-100) 11%, transparent);
 
-  --accent: var(--uv-400);
-  --accent-strong: var(--uv-500);
-  --accent-contrast: #0a0712; /* text/glyph on a solid UV fill */
-  --accent-soft: color-mix(in srgb, var(--uv-500) 18%, transparent);
+  --accent: var(--vermillion-500);
+  --accent-strong: var(--vermillion-400);
+  --accent-contrast: #fbf7ee; /* text/glyph on a solid vermillion fill */
+  --accent-soft: color-mix(in srgb, var(--vermillion-500) 16%, transparent);
 
-  --overlay: rgb(4 5 9 / 0.62);
+  --signal-danger: var(--vermillion-500);
+  --signal-caution: var(--saffron-500);
+  --signal-verified: var(--verdigris-500);
 
-  /* ----- Glass tokens ----- */
-  --glass-tint-opacity: 10%; /* the brief's ~8%, nudged for legibility over our dark backdrop */
-  --glass-border: color-mix(in srgb, #ffffff 14%, transparent);
-  --glass-specular: color-mix(in srgb, #ffffff 55%, transparent);
-  --glass-shadow: 0 8px 32px rgb(0 0 0 / 0.45);
-  --glass-solid: #14171f; /* opaque fallback for prefers-reduced-transparency */
+  --overlay: rgb(7 5 3 / 0.66);
+
+  /* depth — the content layer sits above the ambient plane: cast shadow + faint top-edge highlight */
+  --elev-shadow: 0 1px 2px rgb(0 0 0 / 0.42), 0 14px 30px -10px rgb(0 0 0 / 0.55);
+  --elev-highlight: color-mix(in srgb, var(--bone-50) 12%, transparent);
+  --elev-border: color-mix(in srgb, var(--bone-100) 12%, transparent);
+
+  /* header scroll state fill */
+  --header-bg: color-mix(in srgb, var(--pitch-800) 72%, transparent);
+
+  /* legacy aliases some pre-redesign sheets still read */
+  --bg-gradient-1: var(--pitch-800);
+  --bg-gradient-2: var(--pitch-900);
+  --bg-glow: color-mix(in srgb, var(--uv-600) 16%, transparent);
+
+  /* ----- Glass tokens (capped at two layers; analyzer/verdict surfaces only) ----- */
+  --glass-tint-opacity: 8%;
+  --glass-border: color-mix(in srgb, var(--bone-50) 14%, transparent);
+  --glass-specular: color-mix(in srgb, var(--bone-50) 42%, transparent);
+  --glass-shadow: 0 10px 34px rgb(0 0 0 / 0.5);
+  --glass-solid: #201a13;
+
+  --focus-ring: var(--vermillion-400);
 }
 
 /* ------------------------------------------------------------------ *
- * Light theme. Glass over a light backdrop needs a heavier white fill *
- * and a darker border to hold the 4.5:1 text-contrast floor — the     *
- * contrast rule outranks the literal 8% from the brief.               *
+ * Light theme — a warm archival "paper", not a white dashboard. Glass  *
+ * over a light backdrop needs a heavier fill and a darker border to    *
+ * hold the 4.5:1 text-contrast floor; that rule outranks the literal   *
+ * glass opacity.                                                       *
  * ------------------------------------------------------------------ */
 [data-theme="light"] {
   color-scheme: light;
 
-  --bg: var(--fog-100);
-  --bg-gradient-1: #f4f6fa;
-  --bg-gradient-2: #e6eaf2;
-  --bg-glow: color-mix(in srgb, var(--uv-400) 20%, transparent);
+  --bg: var(--bone-100);
+  --bg-edge: var(--bone-200);
+  --bg-haze: color-mix(in srgb, #ffffff 65%, transparent);
+  --bg-haze-2: color-mix(in srgb, var(--verdigris-500) 7%, transparent);
 
   --surface: #ffffff;
-  --surface-raised: #ffffff;
-  --surface-inset: #eef1f6;
+  --surface-raised: #fbf8f1;
+  --surface-inset: #ece5d7;
 
-  --text: var(--ink-900);
-  --text-muted: color-mix(in srgb, var(--ink-900) 66%, transparent);
-  --text-faint: color-mix(in srgb, var(--ink-900) 46%, transparent);
+  --text: #241d15; /* warm near-black ink */
+  --text-muted: color-mix(in srgb, #241d15 66%, transparent);
+  --text-faint: color-mix(in srgb, #241d15 45%, transparent);
 
-  --border: color-mix(in srgb, var(--ink-900) 12%, transparent);
-  --border-strong: color-mix(in srgb, var(--ink-900) 22%, transparent);
+  --border: color-mix(in srgb, #241d15 14%, transparent);
+  --border-strong: color-mix(in srgb, #241d15 26%, transparent);
+  --hairline: color-mix(in srgb, #241d15 12%, transparent);
 
-  --accent: var(--uv-600);
-  --accent-strong: var(--uv-600);
+  --accent: var(--vermillion-600);
+  --accent-strong: var(--vermillion-500);
   --accent-contrast: #ffffff;
-  --accent-soft: color-mix(in srgb, var(--uv-500) 16%, transparent);
+  --accent-soft: color-mix(in srgb, var(--vermillion-500) 14%, transparent);
 
-  --overlay: rgb(16 19 27 / 0.38);
+  --signal-danger: var(--vermillion-600);
+  --signal-caution: var(--saffron-600);
+  --signal-verified: var(--verdigris-600);
 
-  /* ----- Glass tokens ----- */
-  --glass-tint-opacity: 58%;
-  --glass-border: color-mix(in srgb, var(--ink-900) 12%, transparent);
-  --glass-specular: color-mix(in srgb, #ffffff 90%, transparent);
-  --glass-shadow: 0 8px 30px rgb(14 18 30 / 0.14);
+  --overlay: rgb(36 29 21 / 0.34);
+
+  --elev-shadow: 0 1px 2px rgb(36 29 21 / 0.08), 0 16px 32px -12px rgb(36 29 21 / 0.2);
+  --elev-highlight: color-mix(in srgb, #ffffff 92%, transparent);
+  --elev-border: color-mix(in srgb, #241d15 11%, transparent);
+
+  --header-bg: color-mix(in srgb, var(--bone-100) 80%, transparent);
+
+  --bg-gradient-1: var(--bone-100);
+  --bg-gradient-2: var(--bone-200);
+  --bg-glow: color-mix(in srgb, var(--uv-400) 12%, transparent);
+
+  --glass-tint-opacity: 55%;
+  --glass-border: color-mix(in srgb, #241d15 12%, transparent);
+  --glass-specular: color-mix(in srgb, #ffffff 92%, transparent);
+  --glass-shadow: 0 10px 30px rgb(36 29 21 / 0.14);
   --glass-solid: #ffffff;
+
+  --focus-ring: var(--vermillion-600);
+}
+
+/* Any element carrying data-theme establishes its own text color, so unstyled descendants inside
+ * a nested theme scope (e.g. the kitchen-sink columns) inherit the RIGHT color rather than falling
+ * back to <body>'s single-theme value. Elements that set their own color still win. */
+[data-theme] {
+  color: var(--text);
 }

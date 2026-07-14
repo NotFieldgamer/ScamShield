@@ -1,16 +1,35 @@
 import type { Metadata } from "next";
 import { type ReactNode } from "react";
-import { Bricolage_Grotesque, Inter, JetBrains_Mono } from "next/font/google";
+import { Public_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import { Providers } from "./providers";
 import "@/styles/globals.css";
 
-const display = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-bricolage",
+// Body — Public Sans (USWDS): the typeface of official government records. Not Inter.
+const body = Public_Sans({ subsets: ["latin"], variable: "--font-public", display: "swap" });
+
+// Display — Redaction: a serif built around document redaction / photocopy degradation.
+// Self-hosted (not on Google Fonts); woff2 files live in ./fonts.
+const display = localFont({
+  src: [
+    { path: "./fonts/Redaction-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/Redaction-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-redaction",
   display: "swap",
+  fallback: ["Georgia", "Times New Roman", "serif"],
 });
-const sans = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
+
+// Data — Commit Mono: an under-used humane monospace. Numbers read as evidence, not JetBrains.
+const mono = localFont({
+  src: [
+    { path: "./fonts/CommitMono-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/CommitMono-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-commit",
+  display: "swap",
+  fallback: ["ui-monospace", "SFMono-Regular", "monospace"],
+});
 
 export const metadata: Metadata = {
   title: "Scam Shield",
@@ -26,7 +45,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${display.variable} ${sans.variable} ${mono.variable}`}
+      className={`${display.variable} ${body.variable} ${mono.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
