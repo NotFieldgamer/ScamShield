@@ -33,14 +33,12 @@ Stateless, bearer-token, no server sessions.
 
 ## Authorization
 
-- **Roles:** `USER`, `MODERATOR`, `ADMIN`. Every `/api/v1/admin/**` route requires the **`ADMIN`**
-  role, enforced two ways: a method-level `@PreAuthorize("hasRole('ADMIN')")` (via
-  `@EnableMethodSecurity`) and the filter chain, which gates `/api/v1/admin/**` with
-  `hasRole('ADMIN')` — defense in depth, so a route that ever forgets the annotation still cannot be
-  reached by a non-admin. A `USER` or a `MODERATOR` receives **403** on every admin route.
-  _(Proven: `AuthFlowIT.everyAdminRouteRequiresTheAdminRole` — a USER and a MODERATOR are both
-  rejected; an ADMIN reaches every admin route.)_ The `MODERATOR` role is currently vestigial: it
-  grants no elevated access, since every privileged route requires `ADMIN`.
+- **Roles:** `USER`, `ADMIN` (the `MODERATOR` role was removed in V5; every privileged route is
+  ADMIN-only). Every `/api/v1/admin/**` route requires the **`ADMIN`** role, enforced two ways: a
+  method-level `@PreAuthorize("hasRole('ADMIN')")` (via `@EnableMethodSecurity`) and the filter
+  chain, which gates `/api/v1/admin/**` with `hasRole('ADMIN')` — defense in depth, so a route that
+  ever forgets the annotation still cannot be reached by a non-admin. A `USER` receives **403** on
+  every admin route. _(Proven: `AuthFlowIT.everyAdminRouteRequiresTheAdminRole`.)_
 - Transparency reads (`/model`, `/trends`, `/campaigns`) are public GETs by design.
 
 ## Platform hardening

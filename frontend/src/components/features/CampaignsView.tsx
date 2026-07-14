@@ -31,7 +31,7 @@ export function CampaignsView() {
         <p className="p7-empty-body">
           When the same scam is reposted under different company names, near-duplicate postings are
           grouped by Union-Find over their embeddings. Clusters of two or more appear here once
-          enough postings have been analyzed and a moderator triggers reclustering.
+          enough postings have been analyzed and an admin triggers reclustering.
         </p>
       </div>
     );

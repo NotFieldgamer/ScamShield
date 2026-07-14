@@ -16,7 +16,7 @@ const LINKS = [
 export function SiteNav() {
   const path = usePathname() ?? "";
   const { me } = useSession();
-  const isMod = me?.role === "MODERATOR" || me?.role === "ADMIN";
+  const isMod = me?.role === "ADMIN";
 
   return (
     <nav className="p7-nav">

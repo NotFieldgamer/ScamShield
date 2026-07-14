@@ -21,8 +21,8 @@ export function ReportForm() {
       const summary = await submitReport(postingId, claim);
       setOutcome(
         summary.status === "COMMUNITY_CONFIRMED"
-          ? "Report filed. A second independent report agreed — this posting is now community-flagged for moderator review."
-          : "Report filed. It will be reviewed by a moderator.",
+          ? "Report filed. A second independent report agreed — this posting is now community-flagged for admin review."
+          : "Report filed. It will be reviewed by an admin.",
       );
       setStatus("done");
     } catch (err) {
@@ -69,8 +69,8 @@ export function ReportForm() {
       <p className="p7-panel-title">Dispute this verdict</p>
       <p className="p7-panel-note">
         Posting <span className="p7-mono">{postingId}</span>. Tell us what you believe is true. A
-        label only changes on agreement between two independent reporters or a moderator&apos;s
-        decision — and only moderator-confirmed reports are ever used to retrain.
+        label only changes on agreement between two independent reporters or an admin&apos;s
+        decision — and only admin-confirmed reports are ever used to retrain.
       </p>
       {error && <p className="p7-form-error" style={{ marginBottom: "0.75rem" }}>{error}</p>}
       <div className="p7-actions">

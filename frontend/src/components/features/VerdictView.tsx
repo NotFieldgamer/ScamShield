@@ -87,8 +87,8 @@ export function VerdictView({ data }: { data: AnalysisResponse }) {
           Was this right?
         </h2>
         <p className="text-faint" style={{ margin: "0 0 0.6rem", fontSize: "0.8rem", lineHeight: 1.5 }}>
-          A label only changes on agreement between two independent reporters or a moderator&apos;s
-          decision — and only moderator-confirmed reports are ever used to retrain.
+          A label only changes on agreement between two independent reporters or an admin&apos;s
+          decision — and only admin-confirmed reports are ever used to retrain.
         </p>
         <div className="az-feedback">
           <Link className="ss-btn ss-btn-ghost" href={`/report/${data.postingId}`}>

@@ -91,7 +91,7 @@ predictions as you drag the threshold, alongside the PR curve, ROC curve, and ca
   many company names.
 - **Reports & moderation** — users can dispute a verdict. The feedback loop is treated as an attack
   surface: reports require an account ≥ 7 days old, a label changes only on two independent reporters
-  or a moderator's decision, and **retraining reads only moderator-confirmed reports.** See
+  or an admin's decision, and **retraining reads only admin-confirmed reports.** See
   [`docs/SECURITY.md`](docs/SECURITY.md).
 
 ---

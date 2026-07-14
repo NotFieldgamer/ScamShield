@@ -106,17 +106,14 @@ class AuthFlowIT {
     @Test
     void everyAdminRouteRequiresTheAdminRole() {
         String userToken = tokenForNewUser("user@example.com", Role.USER);
-        String moderatorToken = tokenForNewUser("moderator@example.com", Role.MODERATOR);
         String adminToken = tokenForNewUser("admin@example.com", Role.ADMIN);
 
         List<String> adminRoutes = List.of("/api/v1/admin/reports", "/api/v1/admin/audit");
 
-        // Every /api/v1/admin/** route is ADMIN-only: a USER and a MODERATOR are both forbidden.
+        // Every /api/v1/admin/** route is ADMIN-only: a non-admin (USER) is forbidden.
         for (String route : adminRoutes) {
             assertThat(get(route, userToken).getStatusCode())
                     .as("USER forbidden from " + route).isEqualTo(HttpStatus.FORBIDDEN);
-            assertThat(get(route, moderatorToken).getStatusCode())
-                    .as("MODERATOR forbidden from " + route).isEqualTo(HttpStatus.FORBIDDEN);
         }
 
         // The routes are role-gated, not blanket-denied: an ADMIN reaches every one of them.

@@ -13,7 +13,7 @@ export function ModerationQueue() {
   const [busyId, setBusyId] = React.useState<number | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
 
-  const canModerate = me?.role === "MODERATOR" || me?.role === "ADMIN";
+  const canModerate = me?.role === "ADMIN";
 
   const load = React.useCallback(() => {
     setError(null);
@@ -53,9 +53,9 @@ export function ModerationQueue() {
   if (!canModerate) {
     return (
       <div className="p7-panel">
-        <p className="p7-panel-title">Moderators only</p>
+        <p className="p7-panel-title">Admins only</p>
         <p className="p7-panel-note">
-          This queue is restricted to moderators. {me ? "Your account isn't a moderator." : "You're not signed in."}
+          This queue is restricted to admins. {me ? "Your account isn't an admin." : "You're not signed in."}
         </p>
         {!me && (
           <Link className="ss-btn ss-btn-primary" href="/login">

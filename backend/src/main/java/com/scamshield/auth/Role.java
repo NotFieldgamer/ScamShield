@@ -1,8 +1,7 @@
 package com.scamshield.auth;
 
-/** Application roles. Stored as VARCHAR (see the users.role CHECK constraint in V1). */
+/** Application roles. Stored as VARCHAR (see the users.role CHECK constraint in V1/V5). */
 public enum Role {
     USER,
-    MODERATOR,
     ADMIN
 }

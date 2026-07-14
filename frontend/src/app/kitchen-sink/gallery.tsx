@@ -279,7 +279,7 @@ export function Gallery() {
             <DialogTitle>Report this verdict</DialogTitle>
             <DialogDescription>
               Tell us what we got wrong. A label only changes on agreement between two independent
-              reporters, or a moderator&apos;s decision.
+              reporters, or an admin&apos;s decision.
             </DialogDescription>
             <div style={{ marginTop: "1.25rem", display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
               <DialogClose asChild>

@@ -14,7 +14,7 @@ export default function ReportPage() {
       <h1 className="p7-h1">Report a verdict</h1>
       <p className="p7-sub">
         Think we got it wrong — or want to confirm a scam? Your report helps, and it&apos;s guarded:
-        new accounts can&apos;t report, agreement needs two independent voices, and only moderators
+        new accounts can&apos;t report, agreement needs two independent voices, and only admins
         change the training set.
       </p>
       <ReportForm />

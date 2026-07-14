@@ -6,7 +6,7 @@
 
 import { API_BASE, ApiError, type Claim, type ReportSummary } from "@/lib/api";
 
-export type Role = "USER" | "MODERATOR" | "ADMIN";
+export type Role = "USER" | "ADMIN";
 export type Me = { id: number; email: string; role: Role; emailVerified: boolean };
 
 const TOKEN_KEY = "ss_access_token";
