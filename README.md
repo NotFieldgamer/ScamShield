@@ -38,24 +38,24 @@ cp .env.example .env
 
 **Backend:**
 
-| Variable | Required | Default (local) | What it is |
-| --- | --- | --- | --- |
-| `JWT_SECRET` | **yes** | _none — app won't start_ | HMAC-SHA256 signing key, ≥ 32 bytes. Generate: `openssl rand -base64 48` |
-| `SPRING_DATASOURCE_URL` | yes | `jdbc:postgresql://localhost:5432/scamshield` | Postgres + pgvector JDBC URL (add `?sslmode=require` for managed hosts) |
-| `SPRING_DATASOURCE_USERNAME` | yes | `scamshield` | Postgres user |
-| `SPRING_DATASOURCE_PASSWORD` | yes | `scamshield` | Postgres password |
-| `CORS_ALLOWED_ORIGIN` | yes | `http://localhost:3000` | The one browser origin allowed to call the API |
-| `SPRING_DATA_REDIS_URL` | no | _(host/port below)_ | Full Redis URL, e.g. Upstash `rediss://…`. Rate limiting fails open without Redis |
-| `REDIS_HOST` / `REDIS_PORT` | no | `localhost` / `6379` | Local Redis when not using a URL |
-| `PORT` | no | `8080` | Port the API binds. Render injects this automatically |
-| `EMBEDDING_MODEL_PATH` | no | `/app/models/minilm.onnx` | Runtime path to `minilm.onnx` |
-| `EMBEDDING_MODEL_URL` | no | _(unset)_ | **Build-time only** — URL the Docker build downloads MiniLM from |
-| `JWT_ACCESS_TTL` / `REFRESH_TTL` | no | `PT15M` / `P7D` | Token lifetimes (ISO-8601 durations) |
+| Variable                         | Required | Default (local)                               | What it is                                                                        |
+| -------------------------------- | -------- | --------------------------------------------- | --------------------------------------------------------------------------------- |
+| `JWT_SECRET`                     | **yes**  | _none — app won't start_                      | HMAC-SHA256 signing key, ≥ 32 bytes. Generate: `openssl rand -base64 48`          |
+| `SPRING_DATASOURCE_URL`          | yes      | `jdbc:postgresql://localhost:5432/scamshield` | Postgres + pgvector JDBC URL (add `?sslmode=require` for managed hosts)           |
+| `SPRING_DATASOURCE_USERNAME`     | yes      | `scamshield`                                  | Postgres user                                                                     |
+| `SPRING_DATASOURCE_PASSWORD`     | yes      | `scamshield`                                  | Postgres password                                                                 |
+| `CORS_ALLOWED_ORIGIN`            | yes      | `http://localhost:3000`                       | The one browser origin allowed to call the API                                    |
+| `SPRING_DATA_REDIS_URL`          | no       | _(host/port below)_                           | Full Redis URL, e.g. Upstash `rediss://…`. Rate limiting fails open without Redis |
+| `REDIS_HOST` / `REDIS_PORT`      | no       | `localhost` / `6379`                          | Local Redis when not using a URL                                                  |
+| `PORT`                           | no       | `8080`                                        | Port the API binds. Render injects this automatically                             |
+| `EMBEDDING_MODEL_PATH`           | no       | `/app/models/minilm.onnx`                     | Runtime path to `minilm.onnx`                                                     |
+| `EMBEDDING_MODEL_URL`            | no       | _(unset)_                                     | **Build-time only** — URL the Docker build downloads MiniLM from                  |
+| `JWT_ACCESS_TTL` / `REFRESH_TTL` | no       | `PT15M` / `P7D`                               | Token lifetimes (ISO-8601 durations)                                              |
 
 **Frontend:**
 
-| Variable | Default | What it is |
-| --- | --- | --- |
+| Variable                   | Default                 | What it is                  |
+| -------------------------- | ----------------------- | --------------------------- |
 | `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:8080` | Base URL of the backend API |
 
 ## Run it locally
