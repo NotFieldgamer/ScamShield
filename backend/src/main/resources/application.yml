@@ -42,8 +42,8 @@ app:
     model-path: ${EMBEDDING_MODEL_PATH:/app/models/minilm.onnx}
 
 server:
-  # Hugging Face Spaces routes traffic to app_port (7860). Sourced from SERVER_PORT.
-  port: ${SERVER_PORT:7860}
+  # Render injects the port to bind on as $PORT; default to 8080 for local dev.
+  port: ${PORT:8080}
 
 management:
   endpoints:

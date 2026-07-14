@@ -1,4 +1,4 @@
-# Build context for the Hugging Face Spaces Docker build (repo root).
+# Build context for the deployment Docker build (repo root).
 # Only the backend is built into the image; everything else is excluded to keep the context small.
 
 # Not part of the backend image

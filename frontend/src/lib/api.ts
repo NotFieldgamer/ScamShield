@@ -45,7 +45,7 @@ export class ApiError extends Error {
   }
 }
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:7860";
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
 async function toApiError(res: Response): Promise<ApiError> {
   let message = `Request failed (${res.status})`;

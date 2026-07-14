@@ -1,8 +1,7 @@
 # syntax=docker/dockerfile:1
 #
-# Hugging Face Spaces (Docker SDK) build for the Scam Shield API.
-# Spaces builds the Dockerfile at the repository root with the repo root as the build context,
-# and routes external traffic to app_port (7860, declared in README.md). Only the backend is
+# Deployment build for the Scam Shield API (Render, Docker environment).
+# Built from the repository root with the repo root as the build context. Only the backend is
 # built into this image; the frontend deploys separately to Vercel.
 
 # ---- Stage 1: build the Spring Boot jar ----
@@ -24,6 +23,8 @@ RUN java -Djarmode=tools -jar build/libs/*.jar extract --destination build/extra
  && mv build/extracted/*.jar build/extracted/app.jar
 
 # ---- Stage 2: lean JRE runtime ----
+# JRE (not JDK) for a smaller final image. Jammy (glibc), not Alpine (musl): the ONNX Runtime and
+# DJL native libraries are built against glibc and fail to load on musl.
 FROM eclipse-temurin:21-jre-jammy AS runtime
 
 # curl fetches the embedding model at build time; ca-certificates for HTTPS.
@@ -31,17 +32,17 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends curl ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-# Spaces runs the container as UID 1000. Create a matching non-root user and own /app up front,
-# so the model download and app jar are written as that user (no costly recursive chown).
+# Run as a non-root user and own /app up front, so the model download and app jar are written as
+# that user (no costly recursive chown).
 RUN useradd -m -u 1000 app
 WORKDIR /app
 RUN mkdir -p /app/models && chown -R app:app /app
 USER app
 
 # ---- MiniLM embedding model (~90MB): NOT committed. Fetched here at build time. ----
-# Provide EMBEDDING_MODEL_URL as a Space Variable (Settings -> Variables and secrets); Spaces
-# passes Variables as Docker build args. If the URL is absent (e.g. a CI image-build check), the
-# download is skipped and the app reports the missing model at startup rather than failing the build.
+# Host-agnostic: provide EMBEDDING_MODEL_URL to the image build (e.g. a Render build-time env var
+# surfaced as a build arg). If the URL is absent (e.g. a CI image-build check), the download is
+# skipped and the app reports the missing model at startup rather than failing the build.
 ARG EMBEDDING_MODEL_URL=""
 ARG EMBEDDING_MODEL_PATH=/app/models/minilm.onnx
 ENV EMBEDDING_MODEL_PATH=${EMBEDDING_MODEL_PATH}
@@ -49,15 +50,21 @@ RUN if [ -n "$EMBEDDING_MODEL_URL" ]; then \
       echo "Fetching MiniLM model into $EMBEDDING_MODEL_PATH" && \
       curl -fSL "$EMBEDDING_MODEL_URL" -o "$EMBEDDING_MODEL_PATH" ; \
     else \
-      echo "EMBEDDING_MODEL_URL not set — skipping model download. Set it in the Space Variables so the embedding service can start." ; \
+      echo "EMBEDDING_MODEL_URL not set — skipping model download. Set it as a build-time variable so the embedding service can start." ; \
     fi
 
 # Dependencies (rarely change) first for layer reuse; the thin app jar (changes often) last.
 COPY --from=build --chown=app:app /workspace/build/extracted/lib/ ./lib/
 COPY --from=build --chown=app:app /workspace/build/extracted/app.jar ./app.jar
 
-# Hugging Face Spaces routes external traffic to this port (see app_port in README.md).
-ENV SERVER_PORT=7860
-EXPOSE 7860
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0"
+# The app binds the port Render injects as $PORT (server.port=${PORT:8080}); default 8080 locally.
+# EXPOSE is documentation only — Render detects the bound port at runtime.
+EXPOSE 8080
+
+# JVM memory tuning for Render's 512MB / 0.1-CPU free tier. Without a cap the JVM assumes it can
+# use most of the host's RAM and OOM-crashes on the first request.
+#   MaxRAMPercentage=70  → heap stays inside the 512MB container (~250MB is JVM/native overhead)
+#   UseSerialGC          → single-threaded GC; the parallel/G1 collectors thrash on 0.1 CPU
+#   Xss512k              → smaller thread stacks to fit more threads in the tight footprint
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k"
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]

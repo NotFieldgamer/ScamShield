@@ -108,7 +108,7 @@ Transparency over cover-up:
 
 - **X-Forwarded-For is client-controlled.** The audit-log IP is taken from the leftmost
   `X-Forwarded-For` token, which a client can forge. This is a **deployment hardening** item: the
-  reverse proxy in front of the app (the Hugging Face Spaces router) should overwrite or strip
+  reverse proxy in front of the app (Render's router) should overwrite or strip
   inbound `X-Forwarded-For` so only the proxy-appended, trustworthy client IP reaches the app. It
   does not defeat any of the three
   feedback-loop guards; it only weakens IP attribution in the audit trail. (The crash path above is
