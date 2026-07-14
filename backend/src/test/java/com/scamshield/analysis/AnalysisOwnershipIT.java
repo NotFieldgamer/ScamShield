@@ -46,6 +46,9 @@ class AnalysisOwnershipIT {
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres"));
 
     @Container
+    // Testcontainers owns this container's lifecycle (@Testcontainers starts/stops it), so the
+    // fluent-builder "unclosed Closeable" warning is a false positive.
+    @SuppressWarnings("resource")
     static final GenericContainer<?> REDIS =
             new GenericContainer<>(DockerImageName.parse("redis:7-alpine")).withExposedPorts(6379);
 

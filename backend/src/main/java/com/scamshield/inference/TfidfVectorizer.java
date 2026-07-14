@@ -54,7 +54,7 @@ public class TfidfVectorizer {
     }
 
     private void loadBlock(JsonNode block, Map<String, Integer> vocab, double[] idf, int offset) {
-        block.get("vocabulary").fields().forEachRemaining(e -> {
+        block.get("vocabulary").properties().forEach(e -> {
             int idx = e.getValue().asInt();
             vocab.put(e.getKey(), idx);
             featureNames[offset + idx] = e.getKey();
