@@ -111,6 +111,33 @@ These are real and expected. The product should never be trusted blindly in any 
 
 ---
 
+## Limitations
+
+These are structural limits of the approach, not defects to be patched. They hold regardless of how
+good the classifier gets, and the product is built to work within them rather than pretend they are
+solved.
+
+- **The model can be evaded by rewording.** A posting rewritten to paraphrase around the learned
+  vocabulary will score lower. Character n-grams raise the cost of obfuscation like `e a r n
+  d a i l y`, but they do not close the gap — an author who avoids the tell-tale phrasing can move
+  the score. The rule layer (the scam-phrase matcher, the look-alike-domain check, the salary
+  outlier flag) is a deliberate **second signal** that fires on structure a paraphrase tends to
+  leave behind, but it is a signal, not a proof. **The system is probabilistic by construction and
+  is never certain.**
+- **The public analyze endpoint can be probed.** Anyone can submit text and read back a calibrated
+  score and the features that drove it, so an adversary can query the endpoint repeatedly to map its
+  decision boundary and tune a posting until it scores low. The per-IP token-bucket rate limit
+  **slows this down and raises its cost; it does not prevent it.** We treat the score and its
+  explanation as public information and design on that assumption rather than relying on the model
+  being secret.
+- **The verdict reflects language patterns, not a ground-truth company registry.** The model reads
+  how a posting is written; it holds no authoritative list of real employers to check a name
+  against. It can tell you the text resembles — or does not resemble — known fraud. It **can never
+  confirm that a company is real** or that a posting is safe. That is precisely why the UI always
+  reads _"Likely scam,"_ with a confidence, and **never _"This is a scam."_**
+
+---
+
 ## Who it could harm if it is wrong
 
 - **A real employer, wrongly flagged.** Publicly branding a genuine company a fraudster is a
