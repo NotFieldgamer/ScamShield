@@ -1,0 +1,38 @@
+# Build context for the Hugging Face Spaces Docker build (repo root).
+# Only the backend is built into the image; everything else is excluded to keep the context small.
+
+# Not part of the backend image
+frontend/
+ml/
+docs/
+.github/
+.git/
+.remember/
+*.md
+
+# Build output and caches — rebuilt inside the image
+.gradle/
+**/.gradle/
+**/build/
+
+# Node (frontend) — never needed here
+**/node_modules/
+.next/
+
+# Secrets and local env (never ship into an image layer)
+.env
+.env.*
+!.env.example
+
+# The MiniLM embedding model (~90MB) is fetched at build time from EMBEDDING_MODEL_URL, never
+# baked in from the working tree. Keep the small committed models (classifier.onnx, salary.onnx) —
+# do NOT add a blanket *.onnx rule, or the served classifier would be stripped from the jar.
+backend/src/main/resources/models/minilm.onnx
+
+# IDE / OS / logs
+.idea/
+*.iml
+.vscode/
+*.log
+.DS_Store
+Thumbs.db

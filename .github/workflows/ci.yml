@@ -37,10 +37,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Builds the Hugging Face Spaces Dockerfile (repo root, repo-root context). No
+      # EMBEDDING_MODEL_URL is passed here, so the model download is skipped — this only
+      # verifies the image builds.
       - name: Build backend image
         uses: docker/build-push-action@v6
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: false
           tags: scam-shield-backend:ci
