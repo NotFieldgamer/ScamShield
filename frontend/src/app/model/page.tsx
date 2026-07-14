@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SiteNav } from "@/components/features/SiteNav";
+import { PageFrame } from "@/components/frame/PageFrame";
 import { ModelExplorer } from "@/components/features/ModelExplorer";
 
 export const metadata: Metadata = {
@@ -10,8 +10,7 @@ export const metadata: Metadata = {
 
 export default function ModelPage() {
   return (
-    <main className="p7-shell">
-      <SiteNav />
+    <PageFrame>
       <h1 className="p7-h1">Model performance</h1>
       <p className="p7-sub">
         This page exists because the product&apos;s credibility depends on it. Every number is
@@ -19,6 +18,6 @@ export default function ModelPage() {
         the tradeoff shift in real terms: real jobs blocked versus scams let through.
       </p>
       <ModelExplorer />
-    </main>
+    </PageFrame>
   );
 }

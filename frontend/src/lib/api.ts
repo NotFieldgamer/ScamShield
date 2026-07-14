@@ -183,6 +183,33 @@ export async function getCampaign(id: string | number): Promise<CampaignDetail> 
   return res.json();
 }
 
+// ---- history (owner-only) : the caller's own past analyses, a projection of stored verdicts ----
+export type AnalysisSummary = {
+  id: string;
+  postingId: string;
+  label: Label;
+  probability: number;
+  source: string;
+  snippet: string;
+  createdAt: string;
+};
+
+// ---- bulk scan (owner-only) : a CSV of postings scored in one pass ----
+export type BulkRow = {
+  line: number;
+  snippet: string;
+  id: string;
+  label: Label;
+  probability: number;
+};
+export type BulkResult = {
+  total: number;
+  scam: number;
+  uncertain: number;
+  legit: number;
+  rows: BulkRow[];
+};
+
 // ---- reports (authenticated) ----
 export type Claim = "FALSE_POSITIVE" | "CONFIRMED_SCAM";
 export type ReportSummary = {

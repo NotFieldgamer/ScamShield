@@ -12,7 +12,7 @@ import { AnimatePresence, MotionConfig, motion, useReducedMotion } from "framer-
  * card never grows the document or scrolls the page.
  * ------------------------------------------------------------------------- */
 
-type CardId = "analyze" | "bulk" | "trends" | "model" | "campaigns";
+type CardId = "analyze" | "history" | "bulk" | "trends" | "model" | "campaigns";
 
 type Card = {
   id: CardId;
@@ -40,6 +40,13 @@ const AnalyzeIcon = () => (
   <svg {...iconProps}>
     <circle cx="11" cy="11" r="6" />
     <line x1="15.5" y1="15.5" x2="20" y2="20" />
+  </svg>
+);
+
+const HistoryIcon = () => (
+  <svg {...iconProps}>
+    <circle cx="12" cy="12" r="8" />
+    <polyline points="12 7.5 12 12 15 14" />
   </svg>
 );
 
@@ -101,23 +108,31 @@ const CARDS: Card[] = [
     cta: { href: "/analyze", label: "Open the analyzer" },
   },
   {
+    id: "history",
+    title: "Your history",
+    summary: "Every posting you've analyzed while signed in.",
+    icon: <HistoryIcon />,
+    detail: (
+      <p className="dash-detail-body">
+        Your own past analyses, newest first — filter by verdict or search the text you pasted. Only
+        you can see your history; it needs an account. Open any entry to see the full analysis again.
+      </p>
+    ),
+    cta: { href: "/history", label: "Open your history" },
+  },
+  {
     id: "bulk",
     title: "Bulk scan",
     summary: "Score a CSV of postings in one pass.",
     icon: <BulkIcon />,
     detail: (
-      <>
-        <p className="dash-detail-body">
-          Bulk scanning runs every row through the same pipeline as a single paste, so a batch is
-          scored exactly the way one posting would be.
-        </p>
-        <p className="dash-detail-note">
-          The backend endpoint exists, but the upload screen isn&apos;t wired into the dashboard
-          yet. For now, analyze postings one at a time.
-        </p>
-      </>
+      <p className="dash-detail-body">
+        Upload a CSV with a column of postings and score every row through the same pipeline as a
+        single paste. You get a verdict and calibrated probability per row, and each result is saved
+        to your history. Signing in is required.
+      </p>
     ),
-    cta: { href: "/analyze", label: "Analyze a single posting" },
+    cta: { href: "/bulk", label: "Open bulk scan" },
   },
   {
     id: "trends",

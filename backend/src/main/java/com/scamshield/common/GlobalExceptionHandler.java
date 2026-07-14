@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 /** Turns exceptions into clean JSON. Never leaks a stack trace to the client. */
 @RestControllerAdvice
@@ -53,6 +54,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> accessDenied(AccessDeniedException e) {
         return body(HttpStatus.FORBIDDEN, "You do not have permission to access this resource.");
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Map<String, Object>> badRequest(BadRequestException e) {
+        return body(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    // An upload over spring.servlet.multipart.max-file-size. Map it explicitly, or the catch-all
+    // Exception handler below would report a client-side size limit as a 500.
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> tooLarge(MaxUploadSizeExceededException e) {
+        return body(HttpStatus.PAYLOAD_TOO_LARGE,
+                "That file is too large. Upload a CSV of up to about 1 MB, or split it into batches.");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

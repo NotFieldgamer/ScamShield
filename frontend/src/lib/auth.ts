@@ -4,7 +4,14 @@
 // a bearer header; the refresh token lives only in an httpOnly cookie the backend set, which JS
 // can never read. This owns none of the cryptography — it just carries the token the API issued.
 
-import { API_BASE, ApiError, type Claim, type ReportSummary } from "@/lib/api";
+import {
+  API_BASE,
+  ApiError,
+  type AnalysisSummary,
+  type BulkResult,
+  type Claim,
+  type ReportSummary,
+} from "@/lib/api";
 
 export type Role = "USER" | "ADMIN";
 export type Me = { id: number; email: string; role: Role; emailVerified: boolean };
@@ -90,6 +97,25 @@ export async function me(): Promise<Me> {
 }
 
 // ---- authenticated API calls -------------------------------------------------------------
+
+/** The caller's own analysis history (owner-only). Requires a live session; the API scopes to them. */
+export async function getMyAnalyses(limit = 100): Promise<AnalysisSummary[]> {
+  const res = await authedFetch(`/api/v1/me/analyses?limit=${limit}`);
+  if (!res.ok) throw await toApiError(res);
+  return res.json();
+}
+
+/**
+ * Bulk-scan a CSV of postings (owner-only). The browser sets the multipart boundary itself, so we
+ * pass FormData and let authedFetch add only the bearer header.
+ */
+export async function analyzeBulk(file: File): Promise<BulkResult> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await authedFetch("/api/v1/analysis/bulk", { method: "POST", body: form });
+  if (!res.ok) throw await toApiError(res);
+  return res.json();
+}
 
 export async function submitReport(postingId: string, claim: Claim): Promise<ReportSummary> {
   const res = await authedFetch("/api/v1/reports", {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SiteNav } from "@/components/features/SiteNav";
+import { PageFrame } from "@/components/frame/PageFrame";
 import { CampaignDetailView } from "@/components/features/CampaignDetailView";
 
 export const metadata: Metadata = {
@@ -9,10 +9,9 @@ export const metadata: Metadata = {
 
 export default function CampaignPage() {
   return (
-    <main className="p7-shell">
-      <SiteNav />
+    <PageFrame>
       <h1 className="p7-h1">Campaign</h1>
       <CampaignDetailView />
-    </main>
+    </PageFrame>
   );
 }

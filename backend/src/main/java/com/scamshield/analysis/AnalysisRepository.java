@@ -93,6 +93,31 @@ public class AnalysisRepository {
                 verdictId);
     }
 
+    // A caller's own analyses, newest first. Scoped to p.user_id so it can only ever return rows the
+    // caller owns; anonymous postings (user_id NULL) never match. The snippet is trimmed in SQL so a
+    // long history never ships full raw_text.
+    public List<AnalysisSummaryRow> findByUser(long userId, int limit) {
+        return jdbc.query(
+                "SELECT v.id vid, v.posting_id pid, v.label, v.probability, p.source, "
+                        + "left(p.raw_text, 200) snippet, char_length(p.raw_text) text_len, v.created_at "
+                        + "FROM verdicts v JOIN postings p ON p.id = v.posting_id "
+                        + "WHERE p.user_id = ? ORDER BY v.created_at DESC LIMIT ?",
+                (rs, i) -> {
+                    String raw = rs.getString("snippet");
+                    String trimmed = raw == null ? "" : raw.strip();
+                    String snippet = rs.getInt("text_len") > 200 ? trimmed + "…" : trimmed;
+                    return new AnalysisSummaryRow(
+                            (UUID) rs.getObject("vid"),
+                            (UUID) rs.getObject("pid"),
+                            rs.getString("label"),
+                            rs.getDouble("probability"),
+                            rs.getString("source"),
+                            snippet,
+                            rs.getObject("created_at", java.time.OffsetDateTime.class).toInstant());
+                },
+                userId, limit);
+    }
+
     private static StoredVerdict mapVerdict(java.sql.ResultSet rs, int rowNum) throws SQLException {
         return new StoredVerdict(
                 (UUID) rs.getObject("vid"),
@@ -112,6 +137,9 @@ public class AnalysisRepository {
                                 String modelName, String modelVersion) {}
 
     public record StoredFeature(String featureName, double contribution) {}
+
+    public record AnalysisSummaryRow(UUID verdictId, UUID postingId, String label, double probability,
+                                     String source, String snippet, java.time.Instant createdAt) {}
 
     public record ModelVersionInfo(long id, String name, String version) {}
 }

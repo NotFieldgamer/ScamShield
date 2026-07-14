@@ -4,6 +4,8 @@ import ai.onnxruntime.OrtException;
 import com.scamshield.analysis.AnalysisRepository.StoredFeature;
 import com.scamshield.analysis.AnalysisRepository.StoredVerdict;
 import com.scamshield.analysis.dto.AnalysisResponse;
+import com.scamshield.analysis.dto.AnalysisSummary;
+import com.scamshield.analysis.dto.BulkAnalysisResponse;
 import com.scamshield.analysis.dto.AnalysisResponse.ContributionDto;
 import com.scamshield.analysis.dto.AnalysisResponse.PhraseHitDto;
 import com.scamshield.analysis.dto.AnalysisResponse.SalaryDto;
@@ -30,6 +32,7 @@ import com.scamshield.ratelimit.RedisRateLimiter;
 import com.scamshield.similarity.EmbeddingService;
 import com.scamshield.similarity.VectorSearchRepository;
 import com.scamshield.similarity.VectorSearchRepository.SimilarScam;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +53,8 @@ public class AnalysisService {
     private static final int PERSIST_FEATURES = 15;
     private static final int SIMILAR_SCAMS = 3;
     private static final int SNIPPET = 200;
+    // Matches AnalyzeRequest's @Size cap. A bulk row bypasses that DTO, so trim here for parity.
+    private static final int MAX_TEXT_LENGTH = 50_000;
     // Display thresholds on the calibrated probability. Placeholders until the notebook's
     // precision>=0.90 operating point (metrics.json) is wired in Phase 7's threshold slider.
     private static final double SCAM_THRESHOLD = 0.60;
@@ -101,7 +106,52 @@ public class AnalysisService {
         }
         timings.put("rateLimit", millis(s));
 
-        s = System.nanoTime();
+        return core(ownerId, text, kind, ip, timings, start);
+    }
+
+    /** A caller's own past analyses, newest first, capped so a large history can't be dumped at once. */
+    public List<AnalysisSummary> history(long userId, int limit) {
+        int capped = Math.max(1, Math.min(limit, 200));
+        return repo.findByUser(userId, capped).stream()
+                .map(r -> new AnalysisSummary(r.verdictId(), r.postingId(), r.label(), r.probability(),
+                        r.source(), r.snippet(), r.createdAt()))
+                .toList();
+    }
+
+    /**
+     * Score every row of an uploaded CSV through the same pipeline as a single paste. The whole batch
+     * costs one rate-limit token (a bulk upload is one request); each row is owned by the caller and
+     * lands in their history exactly as a single analysis would.
+     */
+    public BulkAnalysisResponse analyzeBulk(Long ownerId, List<String> texts, String callerKey, String ip) {
+        if (!rateLimiter.tryAcquire(callerKey)) {
+            throw new RateLimitException("rate limit exceeded for " + callerKey);
+        }
+        List<BulkAnalysisResponse.Row> rows = new ArrayList<>(texts.size());
+        int scam = 0;
+        int uncertain = 0;
+        int legit = 0;
+        for (int i = 0; i < texts.size(); i++) {
+            String text = texts.get(i);
+            if (text.length() > MAX_TEXT_LENGTH) {
+                text = text.substring(0, MAX_TEXT_LENGTH);
+            }
+            AnalysisResponse r = core(ownerId, text, "POSTING", ip, new LinkedHashMap<>(), System.nanoTime());
+            rows.add(new BulkAnalysisResponse.Row(i + 1, snippet(text), r.id(), r.label(), r.probability()));
+            switch (r.label()) {
+                case "LIKELY_SCAM" -> scam++;
+                case "LIKELY_LEGITIMATE" -> legit++;
+                default -> uncertain++;
+            }
+        }
+        return new BulkAnalysisResponse(rows.size(), scam, uncertain, legit, rows);
+    }
+
+    // The pipeline proper (brief §H2–H9), rate limit already applied by the caller. Shared by the
+    // single-paste and bulk paths so both persist, audit, and explain identically.
+    private AnalysisResponse core(Long ownerId, String text, String kind, String ip,
+                                  Map<String, Long> timings, long start) {
+        long s = System.nanoTime();
         String source = normalizeKind(kind);
         String hash = TextNormalizer.contentHash(text);
         Optional<StoredVerdict> cached = repo.findByContentHash(hash);

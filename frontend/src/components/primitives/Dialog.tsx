@@ -8,16 +8,26 @@ export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogClose = DialogPrimitive.Close;
 
-/** The Dialog surface is glass — one inspection layer floating over the dimmed overlay. */
+/**
+ * The Dialog surface. Glass by default — one inspection layer floating over the dimmed overlay.
+ * Pass `surface="flat"` for data-dense overlays (e.g. a campaign cluster) that follow the rule that
+ * tables and lists stay opaque.
+ */
 export function DialogContent({
   className,
+  surface = "glass",
   children,
   ...props
-}: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>) {
+}: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+  surface?: "glass" | "flat";
+}) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="ss-overlay" />
-      <DialogPrimitive.Content className={cn("glass ss-dialog", className)} {...props}>
+      <DialogPrimitive.Content
+        className={cn(surface === "flat" ? "surface-card" : "glass", "ss-dialog", className)}
+        {...props}
+      >
         {children}
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>

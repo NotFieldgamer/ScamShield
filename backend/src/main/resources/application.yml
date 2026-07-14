@@ -19,6 +19,11 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+  servlet:
+    multipart:
+      # Bulk CSV upload cap. Bounds one request's work together with the row cap in the controller.
+      max-file-size: 1MB
+      max-request-size: 1MB
 
 # Auth configuration. The signing secret has no default — the app refuses to start
 # without JWT_SECRET, so a signing key is never committed to the repo.
