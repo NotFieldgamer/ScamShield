@@ -1,0 +1,397 @@
+/* phase7.css — transparency + community + admin pages.
+ * Per the design rule these surfaces are FLAT and OPAQUE (no glass): they are data-dense, and
+ * "if everything is glass, nothing is". Numbers are monospaced; the UV accent marks interaction
+ * only; the signal ramp marks verdict/error severity only. */
+
+.p7-shell {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 5rem;
+}
+
+/* ---------- nav ---------- */
+.p7-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.p7-brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-decoration: none;
+}
+.p7-nav-links {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-left: 0.5rem;
+}
+.p7-nav-link {
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  line-height: 1;
+}
+.p7-nav-link:hover {
+  color: var(--text);
+  background: var(--surface-inset);
+}
+.p7-nav-link.is-active {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.p7-nav-spacer {
+  margin-left: auto;
+}
+
+/* ---------- headers ---------- */
+.p7-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.4rem;
+}
+.p7-sub {
+  color: var(--text-muted);
+  margin: 0 0 1.75rem;
+  line-height: 1.55;
+  max-width: 64ch;
+}
+.p7-section-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 2rem 0 0.9rem;
+}
+
+/* ---------- panels ---------- */
+.p7-panel {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.35rem;
+}
+.p7-panel + .p7-panel {
+  margin-top: 1.25rem;
+}
+.p7-panel-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0 0.25rem;
+}
+.p7-panel-note {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+/* ---------- stat cards ---------- */
+.p7-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+.p7-stat {
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+}
+.p7-stat-num {
+  font-family: var(--font-mono);
+  font-size: 1.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+.p7-stat-label {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+.p7-stat-sub {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--text-faint);
+}
+.tone-danger {
+  color: var(--signal-danger);
+}
+.tone-verified {
+  color: var(--signal-verified);
+}
+.tone-accent {
+  color: var(--accent);
+}
+.tone-caution {
+  color: var(--signal-caution);
+}
+
+/* ---------- confusion matrix ---------- */
+.p7-confusion {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+.p7-cm-cell {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 0.9rem 1rem;
+  background: var(--surface-inset);
+}
+.p7-cm-num {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.p7-cm-label {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+.p7-cm-kind {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.15rem;
+}
+.p7-cm-tp {
+  border-color: color-mix(in srgb, var(--signal-verified) 40%, transparent);
+  background: color-mix(in srgb, var(--signal-verified) 9%, transparent);
+}
+.p7-cm-tn {
+  border-color: color-mix(in srgb, var(--signal-verified) 26%, transparent);
+  background: color-mix(in srgb, var(--signal-verified) 5%, transparent);
+}
+.p7-cm-fp {
+  border-color: color-mix(in srgb, var(--signal-caution) 42%, transparent);
+  background: color-mix(in srgb, var(--signal-caution) 10%, transparent);
+}
+.p7-cm-fn {
+  border-color: color-mix(in srgb, var(--signal-danger) 42%, transparent);
+  background: color-mix(in srgb, var(--signal-danger) 10%, transparent);
+}
+
+/* ---------- threshold slider ---------- */
+.p7-threshold {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1.25rem;
+  margin: 0.25rem 0 1.25rem;
+  flex-wrap: wrap;
+}
+.p7-threshold-readout {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.p7-threshold-cap {
+  display: block;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+/* ---------- chart frame ---------- */
+.p7-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+.p7-chart {
+  width: 100%;
+  height: 300px;
+}
+.p7-chart-title {
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin: 0 0 0.1rem;
+}
+.p7-chart-note {
+  font-size: 0.76rem;
+  color: var(--text-faint);
+  margin: 0 0 0.75rem;
+  line-height: 1.45;
+}
+
+/* ---------- tables ---------- */
+.p7-table-wrap {
+  overflow-x: auto;
+}
+.p7-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+.p7-table th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-faint);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.p7-table td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.p7-table tr:last-child td {
+  border-bottom: none;
+}
+.p7-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.p7-mono {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+/* ---------- badges + deltas ---------- */
+.p7-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.p7-badge-scam {
+  color: var(--signal-danger);
+  border-color: color-mix(in srgb, var(--signal-danger) 40%, transparent);
+  background: color-mix(in srgb, var(--signal-danger) 10%, transparent);
+}
+.p7-badge-ok {
+  color: var(--signal-verified);
+  border-color: color-mix(in srgb, var(--signal-verified) 40%, transparent);
+  background: color-mix(in srgb, var(--signal-verified) 10%, transparent);
+}
+.p7-badge-pending {
+  color: var(--signal-caution);
+  border-color: color-mix(in srgb, var(--signal-caution) 40%, transparent);
+  background: color-mix(in srgb, var(--signal-caution) 10%, transparent);
+}
+.p7-delta-up {
+  color: var(--signal-danger);
+  font-family: var(--font-mono);
+}
+.p7-delta-down {
+  color: var(--signal-verified);
+  font-family: var(--font-mono);
+}
+.p7-delta-flat {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+/* ---------- empty / error states ---------- */
+.p7-empty {
+  background: var(--surface-inset);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+.p7-empty-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+}
+.p7-empty-body {
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 52ch;
+  font-size: 0.9rem;
+}
+.p7-empty-body code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: var(--surface-raised);
+  padding: 0.1em 0.35em;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+}
+
+/* ---------- forms (login / report) ---------- */
+.p7-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: 26rem;
+}
+.p7-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.p7-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.p7-input {
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.6rem 0.8rem;
+  outline: none;
+}
+.p7-input:focus-visible {
+  border-color: var(--accent);
+}
+.p7-form-error {
+  color: var(--signal-danger);
+  font-size: 0.85rem;
+  margin: 0;
+}
+.p7-form-ok {
+  color: var(--signal-verified);
+  font-size: 0.85rem;
+  margin: 0;
+}
+.p7-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}

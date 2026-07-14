@@ -15,10 +15,30 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+# Auth configuration. The signing secret has no default — the app refuses to start
+# without JWT_SECRET, so a signing key is never committed to the repo.
+app:
+  jwt:
+    secret: ${JWT_SECRET:}
+    access-ttl: ${JWT_ACCESS_TTL:PT15M}   # 15-minute access token (ISO-8601 duration)
+  refresh:
+    ttl: ${REFRESH_TTL:P7D}               # 7-day rotating refresh token
+  cors:
+    # Only the deployed frontend origin may call the API from a browser.
+    allowed-origin: ${CORS_ALLOWED_ORIGIN:http://localhost:3000}
+  embedding:
+    # MiniLM (~90MB) is not committed. The Docker build downloads it to this path; the app
+    # reads it here at runtime. Local dev/tests fall back to a classpath copy if present.
+    model-path: ${EMBEDDING_MODEL_PATH:/app/models/minilm.onnx}
 
 server:
-  # Cloud Run injects PORT; default to 8080 locally.
-  port: ${PORT:8080}
+  # Hugging Face Spaces routes traffic to app_port (7860). Sourced from SERVER_PORT.
+  port: ${SERVER_PORT:7860}
 
 management:
   endpoints:
@@ -30,11 +50,17 @@ management:
       probes:
         enabled: true
       show-details: never
+  health:
+    # Redis is used only for best-effort rate limiting (fails open); it must not gate liveness.
+    redis:
+      enabled: false
   info:
+    # Do not expose OS/Java version to callers of the public /actuator/info endpoint —
+    # that is reconnaissance material (CWE-200). Leave them off.
     java:
-      enabled: true
+      enabled: false
     os:
-      enabled: true
+      enabled: false
 
 logging:
   # Native Spring Boot structured logging — ECS JSON to stdout, no extra dependency.

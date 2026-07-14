@@ -1,0 +1,128 @@
+/* landing.css — the marketing page. This is the ONE place GSAP scroll reveals are used. Glass is
+ * reserved for the live analyzer hero; the marketing sections are flat and opaque. */
+
+.lp {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 4rem;
+}
+
+.lp-hero {
+  padding: 0.5rem 0 1.5rem;
+}
+.lp-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 1.25rem;
+}
+.lp-hero-analyzer {
+  max-width: 680px;
+}
+.lp-scrollcue {
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  margin: 2.5rem 0 0;
+}
+
+.lp-section {
+  padding: 3.5rem 0;
+  border-top: 1px solid var(--border);
+}
+.lp-section h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 1rem;
+  max-width: 24ch;
+}
+.lp-lead {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 62ch;
+  margin: 0 0 1.75rem;
+}
+
+.lp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+}
+.lp-card {
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+.lp-card .lp-tag {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+.lp-card h3 {
+  font-size: 1rem;
+  margin: 0 0 0.4rem;
+  font-weight: 600;
+}
+.lp-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.lp-quote {
+  border-left: 3px solid var(--accent);
+  padding: 0.35rem 0 0.35rem 1.4rem;
+  margin: 0 0 1.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.6vw, 1.55rem);
+  line-height: 1.4;
+  font-weight: 500;
+  max-width: 32ch;
+}
+.lp-quote b {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.lp-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.lp-footer {
+  padding: 3rem 0 0;
+  border-top: 1px solid var(--border);
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.lp-footer a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.lp-footer a:hover {
+  color: var(--text);
+}
+.lp-footer-links {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.lp-mono {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}

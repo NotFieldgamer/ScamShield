@@ -24,15 +24,30 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // JWT: a maintained library, never a hand-rolled parser. api on the compile path,
+    // impl + jackson at runtime only (jjwt's recommended split).
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // HuggingFace tokenizer for in-process MiniLM embedding (paired with ONNX Runtime).
+    implementation 'ai.djl.huggingface:tokenizers:0.36.0'
 
     // Schema is owned by Flyway; the application never auto-DDLs.
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
 
+    // In-process ONNX inference (no version managed by the Spring BOM).
+    implementation 'com.microsoft.onnxruntime:onnxruntime:1.27.0'
+
     runtimeOnly 'org.postgresql:postgresql'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
@@ -46,6 +61,8 @@ tasks.named('jar') {
 
 tasks.named('test') {
     useJUnitPlatform()
+    // The context loads the 90MB MiniLM model; give the forked test JVM room.
+    maxHeapSize = '2g'
     testLogging {
         events 'passed', 'skipped', 'failed'
         showStandardStreams = false

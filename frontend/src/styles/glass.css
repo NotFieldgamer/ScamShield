@@ -1,0 +1,76 @@
+/* glass.css — the inspection surface.
+ *
+ * Glass here is where you hold a document up to the light; it is not decoration. The recipe is
+ * the brief's, extended with a specular top edge (a 1px gradient border, brighter at the top)
+ * and a fine feTurbulence noise overlay at 3% to kill gradient banding.
+ *
+ * RULES ENFORCED ELSEWHERE, STATED HERE:
+ *   - Maximum two stacked glass layers; never apply .glass to items inside a scrolling list.
+ *   - Text over glass must clear 4.5:1 against the worst-case backdrop (measured, see README).
+ *   - prefers-reduced-transparency falls back to a solid fill (below).
+ */
+
+.glass {
+  position: relative;
+  isolation: isolate;
+  background: color-mix(in srgb, var(--surface) var(--glass-tint-opacity), transparent);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    inset 0 1px 0 var(--glass-specular),
+    var(--glass-shadow);
+}
+
+/* Specular top edge: a gradient ring, brightest along the top, fading out by ~45% down.
+ * Painted with the padding-box mask trick so only a 1px border-width band shows. */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    to bottom,
+    var(--glass-specular) 0%,
+    color-mix(in srgb, var(--glass-specular) 0%, transparent) 45%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Fine noise to break up gradient banding. Grayscale fractalNoise, inlined as a data URI,
+ * held at 3% opacity. This texture is what separates real glass from a plain blur. */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='140'%20height='140'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.85'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Accessibility: honor a request for reduced transparency by dropping the blur and the
+ * translucency entirely, falling back to a solid, opaque surface. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--glass-solid);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .glass::after {
+    display: none; /* no gradients to de-band on a solid fill */
+  }
+}

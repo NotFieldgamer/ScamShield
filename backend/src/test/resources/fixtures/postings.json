@@ -1,0 +1,122 @@
+[
+  {
+    "name": "canonical_scam",
+    "kind": "POSTING",
+    "expect": "SCAM",
+    "text": "URGENT hiring! Work from home and earn $5000 per week, no experience needed. We are recruiting immediately for a data entry role. To activate your account, send your bank account details and a $200 processing fee to start immediately. Guaranteed income. Contact us on WhatsApp today."
+  },
+  {
+    "name": "legit_software_engineer",
+    "kind": "POSTING",
+    "expect": "LEGIT",
+    "text": "Senior Software Engineer, Payments. We are looking for an experienced backend engineer to join our payments platform team. You will design and build resilient services in Java and Spring Boot, collaborate with product and design, and mentor junior engineers. Requirements: 5+ years of professional software development, strong knowledge of distributed systems and relational databases, and excellent communication skills. We offer a competitive salary, equity, health insurance, and a hybrid work schedule. Apply through our careers page."
+  },
+  {
+    "name": "legit_registered_nurse",
+    "kind": "POSTING",
+    "expect": "LEGIT",
+    "text": "Registered Nurse - Medical/Surgical Unit. Our regional hospital is seeking a full-time registered nurse for our 32-bed medical surgical unit. Responsibilities include patient assessment, medication administration, and care coordination with the interdisciplinary team. Qualifications: current RN license, BLS certification, and at least one year of acute care experience preferred. We provide comprehensive benefits, tuition reimbursement, and shift differentials. Applications are reviewed by our nursing recruitment office."
+  },
+  {
+    "name": "legit_high_school_teacher",
+    "kind": "POSTING",
+    "expect": "LEGIT",
+    "text": "High School Mathematics Teacher. The school district invites applications for a full-time mathematics teacher for the upcoming academic year. The successful candidate will plan and deliver engaging lessons for grades 9 through 12, assess student progress, and participate in department meetings. Requirements: a bachelor's degree in mathematics or education and a valid state teaching credential. Salary is per the district pay scale with a full benefits package. Submit your application and transcripts to the district human resources office."
+  },
+  {
+    "name": "obfuscated_earn_daily",
+    "kind": "POSTING",
+    "expect": "OBFUSCATED",
+    "text": "W o r k   f r o m   h o m e and e a r n   d a i l y! No experience needed. We pay $500 per day, guaranteed income. Send a small processing fee to activate your account and start immediately. Message us on Telegram."
+  },
+  {
+    "name": "reshipping_scam",
+    "kind": "POSTING",
+    "expect": "SCAM",
+    "text": "Package Reshipping Agent (work from home). Receive parcels at your address, inspect them, and reship using labels we provide. Earn $50 per package, weekly payout. No experience required. We will need a copy of your passport and your bank account details to set up direct deposit. Immediate start."
+  },
+  {
+    "name": "crypto_investment_scam",
+    "kind": "MESSAGE",
+    "expect": "SCAM",
+    "text": "Hi! I saw your profile and think you'd be great for our remote trading assistant role. You can double your income working part time. We use cryptocurrency and guaranteed income strategies. To get started, make a small security deposit via wire transfer or gift card. Contact us on WhatsApp for details."
+  },
+  {
+    "name": "data_entry_upfront_fee",
+    "kind": "POSTING",
+    "expect": "SCAM",
+    "text": "Online data entry jobs, work from home, earn up to $3000 monthly. No experience needed, flexible hours. A one-time registration fee of $99 is required to receive your login and training materials. Pay a fee now, limited slots available. Act now."
+  },
+  {
+    "name": "mystery_shopper_scam",
+    "kind": "POSTING",
+    "expect": "SCAM",
+    "text": "Become a mystery shopper today and earn daily! We will mail you a check to deposit; keep your commission and wire transfer the remaining balance to our vendor via Western Union. No experience needed. Send your bank account details to get assigned your first store."
+  },
+  {
+    "name": "whatsapp_recruiter",
+    "kind": "MESSAGE",
+    "expect": "SCAM",
+    "text": "Congratulations! You have been shortlisted for a remote customer service position paying $35/hour. This is urgent hiring with immediate start. Please text me on WhatsApp with your full name and bank account details to complete onboarding. A small processing fee applies."
+  },
+  {
+    "name": "legit_sales_commission",
+    "kind": "POSTING",
+    "expect": "OTHER",
+    "text": "Account Executive (commission-based). Join our growing SaaS sales team selling to mid-market accounts. Base salary plus uncapped commission. You will manage a pipeline, run demos, and close deals. Requirements: 3+ years of B2B sales experience and a track record of hitting quota. We provide CRM tools, sales enablement, and health benefits."
+  },
+  {
+    "name": "legit_staff_accountant",
+    "kind": "POSTING",
+    "expect": "OTHER",
+    "text": "Staff Accountant. A mid-sized manufacturing company seeks a staff accountant to support month-end close, reconcile general ledger accounts, and assist with audits. Requirements: a bachelor's degree in accounting, two years of relevant experience, and proficiency with Excel and ERP systems. Competitive salary and benefits. Apply via our HR portal."
+  },
+  {
+    "name": "gift_card_scam",
+    "kind": "MESSAGE",
+    "expect": "SCAM",
+    "text": "Welcome to the team! Your first task as our new personal assistant is to purchase gift cards for a client event. Buy $500 in gift cards, scratch the codes, and text me on Telegram. You will be reimbursed with your first paycheck. Urgent hiring, start immediately."
+  },
+  {
+    "name": "overpayment_check_scam",
+    "kind": "POSTING",
+    "expect": "SCAM",
+    "text": "Personal assistant needed, work from home, $600 weekly. We will send a check for supplies; deposit it, keep your pay, and wire transfer the balance to our supplier. No experience needed. Provide your bank account details and a copy of your passport to begin. Immediate start."
+  },
+  {
+    "name": "assembly_kit_scam",
+    "kind": "POSTING",
+    "expect": "SCAM",
+    "text": "Home assembly jobs! Assemble products at home and earn daily. We ship you a starter kit after a small registration fee and security deposit. Guaranteed income, unlimited earning potential. No experience required. Pay a fee to reserve your slot, limited slots."
+  },
+  {
+    "name": "legit_devops_engineer",
+    "kind": "POSTING",
+    "expect": "OTHER",
+    "text": "DevOps Engineer. We are hiring a DevOps engineer to own our CI/CD pipelines and cloud infrastructure. You will work with Kubernetes, Terraform, and observability tooling to keep our platform reliable. Requirements: experience operating production systems, strong scripting skills, and familiarity with a major cloud provider. Remote-friendly with a competitive salary and stock options."
+  },
+  {
+    "name": "personal_assistant_scam",
+    "kind": "MESSAGE",
+    "expect": "SCAM",
+    "text": "Hello, our CEO is looking for a remote personal assistant. Flexible hours, earn up to $700 weekly. First, we need to verify your identity: send a copy of your passport and your bank account details. A refundable security deposit is required. Contact us on WhatsApp, urgent hiring."
+  },
+  {
+    "name": "legit_customer_support",
+    "kind": "POSTING",
+    "expect": "OTHER",
+    "text": "Customer Support Specialist. Provide friendly, accurate support to our customers over email and chat. You will troubleshoot issues, document solutions, and escalate bugs to engineering. Requirements: excellent written communication, empathy, and one year of customer-facing experience. Paid training, benefits, and a clear promotion path. Apply on our website."
+  },
+  {
+    "name": "advance_fee_loan_scam",
+    "kind": "MESSAGE",
+    "expect": "SCAM",
+    "text": "Financial agent role: help clients process loans and earn commission. Guaranteed income, work from home. To receive client funds you must first pay a small processing fee via wire transfer or cryptocurrency. Send your bank account details. Act now, limited slots, immediate start."
+  },
+  {
+    "name": "legit_product_designer",
+    "kind": "POSTING",
+    "expect": "OTHER",
+    "text": "Product Designer. We are seeking a product designer to craft intuitive experiences across web and mobile. You will conduct user research, create wireframes and prototypes, and partner with engineering to ship polished features. Requirements: a strong portfolio, proficiency with modern design tools, and experience running usability studies. Competitive salary, benefits, and a collaborative team."
+  }
+]

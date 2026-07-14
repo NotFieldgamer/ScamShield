@@ -109,6 +109,7 @@ written to `known_scams_seed.sql` for the pgvector "similar confirmed scams" pan
 | `salary_meta.json` | residual σ, z-threshold | yes |
 | `fixed_test_vector.json` | Java ONNX parity test | yes |
 | `known_scams_seed.sql` | pgvector seed (load after `V1__init.sql`) | seed file (large) |
+| `validation_predictions.csv` / `validation_predictions_seed.sql` | the `/model` threshold slider (load after `V4__phase7_model_and_reports.sql`) | seed file |
 | `metrics.json`, `metrics_table.md`, `*.png` | this README / `/model` page | yes |
 
 `classifier.onnx` is the **raw** logistic regression (skl2onnx has no `FrozenEstimator`

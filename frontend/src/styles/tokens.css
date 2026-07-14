@@ -1,0 +1,118 @@
+/* tokens.css — Scam Shield design tokens.
+ *
+ * The raw palette and radii below are verbatim from the build brief and are never themed.
+ * Semantic tokens (surface, text, border, accent, glass-*) layer on top and flip between
+ * dark and light. Components reference ONLY the semantic tokens, never the raw ramp — that
+ * is what keeps the two themes in lockstep. */
+
+:root {
+  /* ----- Raw palette (from the brief — do not theme these) ----- */
+  --ink-900: #08090c;
+  --ink-800: #0e1016;
+  --ink-700: #161922;
+  --fog-50: #f7f8fa;
+  --fog-100: #eff1f5;
+  --fog-200: #e2e5eb;
+
+  --uv-400: #9b8cff;
+  --uv-500: #7c6bff;
+  --uv-600: #5e4be0;
+
+  --signal-danger: #f2545b;
+  --signal-caution: #f2a03d;
+  --signal-verified: #2ed3a0;
+
+  /* ----- Radii (verbatim) ----- */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  /* ----- Type families (the actual faces are assigned by next/font) ----- */
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+
+  /* The UV violet is the only interactive/inspection accent; the focus ring is always it. */
+  --focus-ring: var(--uv-400);
+}
+
+/* ------------------------------------------------------------------ *
+ * Dark is the default theme. Attribute selectors (not :root-scoped)   *
+ * so a subtree can force a theme — the kitchen-sink shows both at     *
+ * once by setting data-theme on two columns.                          *
+ * ------------------------------------------------------------------ */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: var(--ink-900);
+  --bg-gradient-1: #0b0d15;
+  --bg-gradient-2: #0f1320;
+  --bg-glow: color-mix(in srgb, var(--uv-600) 22%, transparent);
+
+  /* Tint source the glass recipe mixes with transparent. */
+  --surface: #ffffff;
+  --surface-raised: #171b26; /* opaque menus / popovers / tooltips — kept crisp, not glass */
+  --surface-inset: #10131b;
+
+  --text: var(--fog-50);
+  --text-muted: color-mix(in srgb, var(--fog-50) 66%, transparent);
+  --text-faint: color-mix(in srgb, var(--fog-50) 42%, transparent);
+
+  --border: color-mix(in srgb, #ffffff 12%, transparent);
+  --border-strong: color-mix(in srgb, #ffffff 24%, transparent);
+
+  --accent: var(--uv-400);
+  --accent-strong: var(--uv-500);
+  --accent-contrast: #0a0712; /* text/glyph on a solid UV fill */
+  --accent-soft: color-mix(in srgb, var(--uv-500) 18%, transparent);
+
+  --overlay: rgb(4 5 9 / 0.62);
+
+  /* ----- Glass tokens ----- */
+  --glass-tint-opacity: 10%; /* the brief's ~8%, nudged for legibility over our dark backdrop */
+  --glass-border: color-mix(in srgb, #ffffff 14%, transparent);
+  --glass-specular: color-mix(in srgb, #ffffff 55%, transparent);
+  --glass-shadow: 0 8px 32px rgb(0 0 0 / 0.45);
+  --glass-solid: #14171f; /* opaque fallback for prefers-reduced-transparency */
+}
+
+/* ------------------------------------------------------------------ *
+ * Light theme. Glass over a light backdrop needs a heavier white fill *
+ * and a darker border to hold the 4.5:1 text-contrast floor — the     *
+ * contrast rule outranks the literal 8% from the brief.               *
+ * ------------------------------------------------------------------ */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: var(--fog-100);
+  --bg-gradient-1: #f4f6fa;
+  --bg-gradient-2: #e6eaf2;
+  --bg-glow: color-mix(in srgb, var(--uv-400) 20%, transparent);
+
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-inset: #eef1f6;
+
+  --text: var(--ink-900);
+  --text-muted: color-mix(in srgb, var(--ink-900) 66%, transparent);
+  --text-faint: color-mix(in srgb, var(--ink-900) 46%, transparent);
+
+  --border: color-mix(in srgb, var(--ink-900) 12%, transparent);
+  --border-strong: color-mix(in srgb, var(--ink-900) 22%, transparent);
+
+  --accent: var(--uv-600);
+  --accent-strong: var(--uv-600);
+  --accent-contrast: #ffffff;
+  --accent-soft: color-mix(in srgb, var(--uv-500) 16%, transparent);
+
+  --overlay: rgb(16 19 27 / 0.38);
+
+  /* ----- Glass tokens ----- */
+  --glass-tint-opacity: 58%;
+  --glass-border: color-mix(in srgb, var(--ink-900) 12%, transparent);
+  --glass-specular: color-mix(in srgb, #ffffff 90%, transparent);
+  --glass-shadow: 0 8px 30px rgb(14 18 30 / 0.14);
+  --glass-solid: #ffffff;
+}

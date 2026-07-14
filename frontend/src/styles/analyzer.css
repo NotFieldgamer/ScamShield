@@ -1,0 +1,358 @@
+/* analyzer.css — the /analyze product screen. Flat, opaque surfaces for the data-dense parts
+ * (flag list, similar scams); glass is reserved for the posting card and verdict panel. */
+
+.az-shell {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 5rem;
+}
+.az-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.az-brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-decoration: none;
+}
+.az-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ---------- input ---------- */
+.az-lede {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+}
+.az-sub {
+  color: var(--text-muted);
+  margin: 0 0 1.5rem;
+  line-height: 1.55;
+  max-width: 52ch;
+}
+.az-textarea {
+  width: 100%;
+  min-height: 190px;
+  resize: vertical;
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  line-height: 1.65;
+  padding: 1rem 1.1rem;
+  outline: none;
+}
+.az-textarea::placeholder {
+  color: var(--text-faint);
+}
+.az-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+.az-hint {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+.az-error {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  color: var(--signal-danger);
+  background: color-mix(in srgb, var(--signal-danger) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--signal-danger) 35%, transparent);
+}
+
+/* ---------- verdict banner ---------- */
+.az-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.35rem 1.6rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.az-banner-scam {
+  background: color-mix(in srgb, var(--signal-danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--signal-danger) 42%, transparent);
+}
+.az-banner-legit {
+  background: color-mix(in srgb, var(--signal-verified) 12%, transparent);
+  border-color: color-mix(in srgb, var(--signal-verified) 42%, transparent);
+}
+.az-banner-uncertain {
+  background: color-mix(in srgb, var(--signal-caution) 12%, transparent);
+  border-color: color-mix(in srgb, var(--signal-caution) 42%, transparent);
+}
+.az-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.az-banner-icon {
+  flex-shrink: 0;
+}
+.az-verdict-label {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3.5vw, 1.7rem);
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.1;
+}
+.az-verdict-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.az-scam {
+  color: var(--signal-danger);
+}
+.az-legit {
+  color: var(--signal-verified);
+}
+.az-uncertain {
+  color: var(--signal-caution);
+}
+.az-confidence {
+  text-align: right;
+}
+.az-confidence-num {
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 6vw, 2.6rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.az-confidence-cap {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-top: 0.35rem;
+}
+
+/* ---------- section ---------- */
+.az-section-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.9rem;
+}
+
+/* ---------- highlighted posting ---------- */
+.az-posting {
+  font-size: 0.98rem;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  margin: 0;
+}
+.az-flagword {
+  border-radius: 4px;
+  padding: 0.05em 0.18em;
+  color: inherit;
+  background: transparent;
+  box-shadow: 0 0 0 transparent;
+  transition:
+    color 550ms ease,
+    background 550ms ease,
+    box-shadow 550ms ease;
+}
+.az-posting.is-lit .az-flagword {
+  color: var(--accent);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--uv-500) 20%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--uv-400) 42%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .az-flagword {
+    transition: none;
+  }
+}
+
+/* ---------- flag list ---------- */
+.az-flags {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.az-flag-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.az-flag-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
+  opacity: 0.14;
+}
+.az-flag-bar-pos {
+  background: var(--signal-danger);
+}
+.az-flag-bar-neg {
+  background: var(--signal-verified);
+}
+.az-flag-main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.az-flag-term {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+.az-flag-kind {
+  font-size: 0.64rem;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.az-flag-value {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.az-flag-pos {
+  color: var(--signal-danger);
+}
+.az-flag-neg {
+  color: var(--signal-verified);
+}
+.az-flags-caption {
+  margin: 0.85rem 0 0;
+  font-size: 0.76rem;
+  color: var(--text-faint);
+  line-height: 1.5;
+}
+
+/* ---------- similar scams ---------- */
+.az-similar {
+  display: grid;
+  gap: 0.75rem;
+}
+.az-similar-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+}
+.az-similar-pct {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.az-similar-cap {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.az-similar-snippet {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.az-similar-source {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+
+/* ---------- footer + feedback ---------- */
+.az-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-faint);
+}
+.az-footer b {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.az-feedback {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+/* ---------- skeleton ---------- */
+.az-skel {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--surface-inset),
+    color-mix(in srgb, var(--surface-inset) 60%, var(--border)),
+    var(--surface-inset)
+  );
+  background-size: 200% 100%;
+  animation: az-shimmer 1.3s ease-in-out infinite;
+}
+@keyframes az-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .az-skel {
+    animation: none;
+  }
+}
