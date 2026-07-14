@@ -126,7 +126,7 @@ These are real and expected. The product should never be trusted blindly in any 
   writers, and informal-sector roles are more likely to trip the model's learned proxies for
   "scam." This is a fairness concern, not just an accuracy one. **Mitigations:** documented here as
   a known failure mode; the community-report and moderation flow (below) exists to correct verdicts,
-  and only a moderator's decision — never an anonymous report — feeds retraining.
+  and only an admin's decision — never an anonymous report — feeds retraining.
 
 ---
 
@@ -134,8 +134,8 @@ These are real and expected. The product should never be trusted blindly in any 
 
 Users can dispute a verdict. The feedback loop is treated as an attack surface (a scammer will
 report their own scam as legitimate), so: reports require an account at least 7 days old, a label
-changes only on agreement between **two independent reporters** or a **moderator's decision**, and
-**retraining consumes only moderator-confirmed reports.** Details in
+changes only on agreement between **two independent reporters** or an **admin's decision**, and
+**retraining consumes only reports an admin has confirmed.** Details in
 [`docs/SECURITY.md`](SECURITY.md). This is how a wrong verdict gets corrected without letting the
 correction channel be poisoned.
 

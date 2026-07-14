@@ -33,13 +33,14 @@ Stateless, bearer-token, no server sessions.
 
 ## Authorization
 
-- **Roles:** `USER`, `MODERATOR`, `ADMIN`. Every privileged endpoint carries a method-level
-  `@PreAuthorize` (`hasRole('MODERATOR')` / `hasRole('ADMIN')`), enforced by `@EnableMethodSecurity`.
-  The filter chain additionally requires authentication on `/api/v1/admin/**` — defense in depth,
-  but the role check is the annotation. A plain `USER` receives **403** on every admin route.
-  _(Proven: `AuthFlowIT.aUserIsForbiddenFromEveryAdminRoute` — and it also checks the routes are
-  role-gated, not blanket-denied: a `MODERATOR` gets through where allowed, an `ADMIN`-only route
-  still rejects a `MODERATOR`.)_
+- **Roles:** `USER`, `MODERATOR`, `ADMIN`. Every `/api/v1/admin/**` route requires the **`ADMIN`**
+  role, enforced two ways: a method-level `@PreAuthorize("hasRole('ADMIN')")` (via
+  `@EnableMethodSecurity`) and the filter chain, which gates `/api/v1/admin/**` with
+  `hasRole('ADMIN')` — defense in depth, so a route that ever forgets the annotation still cannot be
+  reached by a non-admin. A `USER` or a `MODERATOR` receives **403** on every admin route.
+  _(Proven: `AuthFlowIT.everyAdminRouteRequiresTheAdminRole` — a USER and a MODERATOR are both
+  rejected; an ADMIN reaches every admin route.)_ The `MODERATOR` role is currently vestigial: it
+  grants no elevated access, since every privileged route requires `ADMIN`.
 - Transparency reads (`/model`, `/trends`, `/campaigns`) are public GETs by design.
 
 ## Platform hardening
@@ -75,11 +76,11 @@ exactly that. Three guards:
    accounts** agree — a single report changes nothing. Agreement moves the reports to a
    `COMMUNITY_CONFIRMED` state. _(Proven:
    `ReportGuardIT.twoIndependentReportersFlipTheCommunityLabelButNotTheTrainingSet`.)_
-3. **Moderator-only retraining.** `COMMUNITY_CONFIRMED` is a moderation _hint_, never a training
+3. **Admin-only retraining.** `COMMUNITY_CONFIRMED` is a moderation _hint_, never a training
    signal. Retraining reads **only** reports with status `MODERATOR_CONFIRMED`
-   (`ReportRepository.moderatorConfirmed()`). So even two sock-puppet accounts cannot reach the
-   training set — only a moderator's explicit decision can. _(Proven:
-   `ReportGuardIT.onlyAModeratorDecisionReachesTheTrainingSet`.)_
+   (`ReportRepository.moderatorConfirmed()`) — a status only an `ADMIN` decision can set. So even
+   two sock-puppet accounts cannot reach the training set; only an admin's explicit decision can.
+   _(Proven: `ReportGuardIT.onlyAnAdminDecisionReachesTheTrainingSet`.)_
 
 Every state change — login, refresh, reuse detection, report, moderation decision, reclustering —
 writes to an **append-only `audit_log`**. Append-only is enforced at the database with a trigger
@@ -117,7 +118,7 @@ Transparency over cover-up:
 - **Community-label promotion is best-effort under concurrency.** Under PostgreSQL's default READ
   COMMITTED isolation, two simultaneous "second reporter" submissions can each fail to see the
   other and skip the community-label flip. This delays a community label; it never grants an
-  unauthorized flip, and it does not affect the moderator-only retraining guarantee. A stronger fix
+  unauthorized flip, and it does not affect the admin-only retraining guarantee. A stronger fix
   (advisory lock or SERIALIZABLE on submission) is deferred.
 
 ---

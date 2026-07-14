@@ -31,7 +31,7 @@ import org.testcontainers.utility.DockerImageName;
 /**
  * Proves the four security guarantees required of Phase 4, end to end against a real database:
  * an expired access token is rejected, a rotated refresh token cannot be reused, reuse revokes
- * the whole family, and a USER is forbidden from every admin route.
+ * the whole family, and every admin route requires the ADMIN role.
  */
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -104,25 +104,26 @@ class AuthFlowIT {
     }
 
     @Test
-    void aUserIsForbiddenFromEveryAdminRoute() {
+    void everyAdminRouteRequiresTheAdminRole() {
         String userToken = tokenForNewUser("user@example.com", Role.USER);
         String moderatorToken = tokenForNewUser("moderator@example.com", Role.MODERATOR);
         String adminToken = tokenForNewUser("admin@example.com", Role.ADMIN);
 
         List<String> adminRoutes = List.of("/api/v1/admin/reports", "/api/v1/admin/audit");
 
-        // A USER is forbidden from every admin route.
+        // Every /api/v1/admin/** route is ADMIN-only: a USER and a MODERATOR are both forbidden.
         for (String route : adminRoutes) {
             assertThat(get(route, userToken).getStatusCode())
-                    .as("USER forbidden from " + route)
-                    .isEqualTo(HttpStatus.FORBIDDEN);
+                    .as("USER forbidden from " + route).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(get(route, moderatorToken).getStatusCode())
+                    .as("MODERATOR forbidden from " + route).isEqualTo(HttpStatus.FORBIDDEN);
         }
 
-        // The routes are role-gated, not blanket-denied: the right role gets through, and the
-        // ADMIN-only route still rejects a MODERATOR.
-        assertThat(get("/api/v1/admin/reports", moderatorToken).getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(get("/api/v1/admin/audit", adminToken).getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(get("/api/v1/admin/audit", moderatorToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        // The routes are role-gated, not blanket-denied: an ADMIN reaches every one of them.
+        for (String route : adminRoutes) {
+            assertThat(get(route, adminToken).getStatusCode())
+                    .as("ADMIN reaches " + route).isEqualTo(HttpStatus.OK);
+        }
     }
 
     @Test

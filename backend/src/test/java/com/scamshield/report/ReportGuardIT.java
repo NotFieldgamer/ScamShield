@@ -31,7 +31,7 @@ import org.testcontainers.utility.DockerImageName;
 /**
  * The feedback loop as an attack surface (brief §H). Proves the four guards end to end: a too-new
  * account is refused; an established account is accepted; two independent reporters flip only the
- * community label (never the training set); and a moderator decision is the sole training signal.
+ * community label (never the training set); and an admin decision is the sole training signal.
  */
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -96,10 +96,10 @@ class ReportGuardIT {
     }
 
     @Test
-    void onlyAModeratorDecisionReachesTheTrainingSet() {
+    void onlyAnAdminDecisionReachesTheTrainingSet() {
         UUID posting = insertPosting();
         String reporter = tokenForUser("reporter@example.com", Role.USER, 10);
-        String moderator = tokenForUser("mod@example.com", Role.MODERATOR, 30);
+        String admin = tokenForUser("admin@example.com", Role.ADMIN, 30);
 
         assertThat(postReport(reporter, posting, "CONFIRMED_SCAM").getStatusCode())
                 .isEqualTo(HttpStatus.CREATED);
@@ -108,9 +108,11 @@ class ReportGuardIT {
 
         ResponseEntity<String> resolved = rest.exchange(
                 "/api/v1/admin/reports/" + reportId + "/resolve", HttpMethod.POST,
-                jsonEntity(moderator, "{\"decision\":\"CONFIRM\"}"), String.class);
+                jsonEntity(admin, "{\"decision\":\"CONFIRM\"}"), String.class);
         assertThat(resolved.getStatusCode()).isEqualTo(HttpStatus.OK);
 
+        // The status name (MODERATOR_CONFIRMED) is the data-model marker for "a privileged human
+        // confirmed this"; only an ADMIN can now set it, and only it reaches retraining.
         assertThat(statusesFor(posting)).containsExactly("MODERATOR_CONFIRMED");
         assertThat(moderatorConfirmedFor(posting)).hasSize(1); // now, and only now, retraining sees it
     }

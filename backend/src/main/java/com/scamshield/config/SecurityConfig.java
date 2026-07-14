@@ -56,8 +56,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/models/active/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/trends").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/campaigns", "/api/v1/campaigns/*").permitAll()
-                        // Privileged routes: must be authenticated here; @PreAuthorize enforces the role.
-                        .requestMatchers("/api/v1/admin/**").authenticated()
+                        // Every admin route is ADMIN-only. Enforced here at the URL layer as defense
+                        // in depth on top of the per-method @PreAuthorize, so a route that ever
+                        // forgets the annotation still cannot be reached by a non-admin.
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint)

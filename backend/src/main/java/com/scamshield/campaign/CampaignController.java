@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Public campaign browsing plus a moderator-triggered rebuild. Reads are public (the transparency
- * page); reclustering mutates shared state, so it is gated to MODERATOR.
+ * Public campaign browsing plus an admin-triggered rebuild. Reads are public (the transparency
+ * page); reclustering mutates shared state, so it is gated to ADMIN.
  */
 @RestController
 @RequestMapping("/api/v1")
@@ -38,10 +38,10 @@ public class CampaignController {
     }
 
     @PostMapping("/admin/campaigns/recluster")
-    @PreAuthorize("hasRole('MODERATOR')")
-    public Map<String, Integer> recluster(@AuthenticationPrincipal Long moderatorId,
+    @PreAuthorize("hasRole('ADMIN')")
+    public Map<String, Integer> recluster(@AuthenticationPrincipal Long adminId,
                                           HttpServletRequest http) {
-        int clusters = campaigns.recluster(moderatorId, clientIp(http));
+        int clusters = campaigns.recluster(adminId, clientIp(http));
         return Map.of("campaigns", clusters);
     }
 
