@@ -1,97 +1,118 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import { login, register } from "@/lib/auth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { login } from "@/lib/auth";
+import { ApiError } from "@/lib/api";
+import { safeInternalPath } from "@/lib/utils";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function emailProblem(value: string): string | null {
+  const v = value.trim();
+  if (!EMAIL_RE.test(v) || v.length > 320) {
+    return "Enter a valid email address, like name@example.com";
+  }
+  return null;
+}
 
 export function LoginForm() {
   const router = useRouter();
-  const [mode, setMode] = React.useState<"login" | "register">("login");
+  const next = useSearchParams().get("next");
+
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState<string | null>(null);
+  const [touched, setTouched] = React.useState<{ email?: boolean; password?: boolean }>({});
+  const [submitted, setSubmitted] = React.useState(false);
+  const [formError, setFormError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
 
-  async function submit(e: React.FormEvent) {
+  const emailError = emailProblem(email);
+  const passwordError = password.length === 0 ? "Enter your password" : null;
+
+  const showEmailError = (touched.email || submitted) && emailError;
+  const showPasswordError = (touched.password || submitted) && passwordError;
+
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
+    setSubmitted(true);
+    setFormError(null);
+    if (emailError || passwordError) return;
     setBusy(true);
     try {
-      if (mode === "register") {
-        await register(email, password);
-      }
-      await login(email, password);
-      router.push("/");
+      await login(email.trim(), password);
+      router.push(safeInternalPath(next));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setFormError(
+        err instanceof ApiError
+          ? err.message
+          : "Couldn't reach the server. Check your connection and try again.",
+      );
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="p7-panel" style={{ maxWidth: "28rem" }}>
-      <div className="p7-actions" style={{ marginBottom: "1.25rem" }}>
-        <button
-          type="button"
-          className={`ss-btn ${mode === "login" ? "ss-btn-primary" : "ss-btn-ghost"}`}
-          onClick={() => setMode("login")}
-        >
-          Sign in
-        </button>
-        <button
-          type="button"
-          className={`ss-btn ${mode === "register" ? "ss-btn-primary" : "ss-btn-ghost"}`}
-          onClick={() => setMode("register")}
-        >
-          Create account
-        </button>
+    <form className="auth-card surface-card" onSubmit={onSubmit} noValidate>
+      <div className="auth-field">
+        <label className="auth-label" htmlFor="login-email">
+          Email
+        </label>
+        <input
+          id="login-email"
+          className="auth-input"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          spellCheck={false}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+          aria-invalid={showEmailError ? "true" : undefined}
+          aria-describedby={showEmailError ? "login-email-error" : undefined}
+        />
+        {showEmailError && (
+          <p className="auth-error" id="login-email-error" role="alert">
+            {emailError}
+          </p>
+        )}
       </div>
 
-      <form className="p7-form" onSubmit={submit}>
-        <div className="p7-field">
-          <label className="p7-label" htmlFor="email">
-            Email
-          </label>
-          <input
-            id="email"
-            className="p7-input"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="p7-field">
-          <label className="p7-label" htmlFor="password">
-            Password
-          </label>
-          <input
-            id="password"
-            className="p7-input"
-            type="password"
-            autoComplete={mode === "register" ? "new-password" : "current-password"}
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        {error && <p className="p7-form-error">{error}</p>}
-        <div className="p7-actions">
-          <button type="submit" className="ss-btn ss-btn-primary" disabled={busy}>
-            {busy ? "Working…" : mode === "login" ? "Sign in" : "Create account"}
-          </button>
-        </div>
-      </form>
+      <div className="auth-field">
+        <label className="auth-label" htmlFor="login-password">
+          Password
+        </label>
+        <input
+          id="login-password"
+          className="auth-input"
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+          aria-invalid={showPasswordError ? "true" : undefined}
+          aria-describedby={showPasswordError ? "login-password-error" : undefined}
+        />
+        {showPasswordError && (
+          <p className="auth-error" id="login-password-error" role="alert">
+            {passwordError}
+          </p>
+        )}
+      </div>
 
-      {mode === "register" && (
-        <p className="p7-panel-note" style={{ marginTop: "1rem", marginBottom: 0 }}>
-          Reporting a verdict needs an account at least 7 days old — a guard against scammers
-          disputing their own postings.
+      {formError && (
+        <p className="auth-formerror" role="alert">
+          {formError}
         </p>
       )}
-    </div>
+
+      <div className="auth-actions">
+        <button type="submit" className="ss-btn ss-btn-primary" disabled={busy}>
+          {busy ? "Signing in…" : "Sign in"}
+        </button>
+      </div>
+    </form>
   );
 }

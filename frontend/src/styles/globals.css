@@ -6,6 +6,8 @@
 @import "./analyzer.css";
 @import "./phase7.css";
 @import "./landing.css";
+@import "./dashboard.css";
+@import "./auth.css";
 
 *,
 *::before,

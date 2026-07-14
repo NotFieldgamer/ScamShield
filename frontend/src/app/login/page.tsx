@@ -1,22 +1,36 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
-import { SiteNav } from "@/components/features/SiteNav";
+import Link from "next/link";
+import { AuthShell, AuthCardFallback } from "@/components/features/auth/AuthShell";
 import { LoginForm } from "@/components/features/LoginForm";
 
 export const metadata: Metadata = {
   title: "Sign in · Scam Shield",
-  description: "Sign in to report verdicts and, for admins, review the queue.",
+  description: "Sign in to dispute a verdict or, for admins, work the report queue.",
 };
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+  const registerHref = next ? `/register?next=${encodeURIComponent(next)}` : "/register";
+
   return (
-    <main className="p7-shell">
-      <SiteNav />
-      <h1 className="p7-h1">Sign in</h1>
-      <p className="p7-sub">
-        An account lets you dispute a verdict and, for admins, work the report queue. The
-        password is hashed with BCrypt; the session refresh token lives only in an httpOnly cookie.
-      </p>
-      <LoginForm />
-    </main>
+    <AuthShell
+      heading="Sign in"
+      sub="Sign in to dispute a verdict or, for admins, work the report queue."
+      footer={
+        <>
+          <Link href="/forgot-password">Forgot password?</Link>
+          <Link href={registerHref}>New here? Create an account</Link>
+        </>
+      }
+    >
+      <Suspense fallback={<AuthCardFallback />}>
+        <LoginForm />
+      </Suspense>
+    </AuthShell>
   );
 }
