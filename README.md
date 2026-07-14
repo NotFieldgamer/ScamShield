@@ -1,13 +1,3 @@
----
-title: Scam Shield API
-emoji: 🛡️
-colorFrom: indigo
-colorTo: purple
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # Scam Shield
 
 **Paste any job post or recruiter message. Find out in under a second whether it's likely a scam —
