@@ -1,5 +1,6 @@
 package com.verity.auth;
 
+import java.util.Locale;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,11 @@ public class ClerkUserDirectory {
     }
 
     private User provision(String clerkId) {
-        String email = clerk.primaryEmail(clerkId);
+        // Lowercased because every pre-Clerk row was written that way, and both findByEmail and the
+        // unique index compare case-sensitively. A mixed-case address from Clerk would miss the
+        // legacy row and insert a second one for the same person — and since no code path grants
+        // ADMIN, an admin who lost adoption could not get it back except by hand in SQL.
+        String email = clerk.primaryEmail(clerkId).trim().toLowerCase(Locale.ROOT);
 
         // An account with this address may predate Clerk (it had a password). Adopt it rather than
         // insert a second row: it owns postings, reports and an audit trail, and its created_at is

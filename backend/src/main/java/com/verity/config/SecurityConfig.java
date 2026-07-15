@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.util.Assert;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -87,6 +88,10 @@ public class SecurityConfig {
     public JwtDecoder jwtDecoder(
             @Value("${app.clerk.issuer}") String issuer,
             @Value("${app.clerk.jwks-uri:}") String jwksUri) {
+        // An absent CLERK_ISSUER is caught by the placeholder, but one set to an empty string still
+        // resolves. Blank would build a nonsense JWKS URL and an issuer validator matching "", so
+        // every token fails while /actuator/health stays green — fail the deploy instead.
+        Assert.hasText(issuer, "CLERK_ISSUER must be set; no token can be verified without it");
         String keys = jwksUri.isBlank() ? issuer + "/.well-known/jwks.json" : jwksUri;
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(keys).build();
         decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer));
