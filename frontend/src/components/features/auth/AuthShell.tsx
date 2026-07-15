@@ -18,8 +18,8 @@ type AuthShellProps = {
  * Shared chromeless layout for the auth screens: a dossier opened flat.
  *
  * Left is the intake sheet — logo mark, heading, one-line sub, the form. Right is the specimen it
- * is about, which is why the form sits left-of-centre rather than marooned mid-viewport: the page
- * is a spread, and the empty half was always the other page of it.
+ * is about. The spread is centred as a single object, so the form still reads left-of-centre — the
+ * empty half was always the other page of the dossier, not space to be reclaimed.
  *
  * The specimen is the first thing dropped when space runs out (see .auth-specimen): below ~64rem
  * the form is the only thing that matters, and it takes the full column rather than being pushed

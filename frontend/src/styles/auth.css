@@ -9,10 +9,14 @@
   min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 26rem); /* one column until there is room for the spread */
-  align-content: start; /* pin to the top band, not vertical-centre */
-  justify-content: start; /* bias to the left, not horizontal-centre */
+  /* The spread is centred as one object. Centring the group is not the same as centring the form:
+   * the form still sits left of the viewport's middle, because the specimen occupies the other
+   * half of the dossier. `safe` so a short viewport crops the bottom instead of the heading. */
+  align-content: safe center;
+  justify-content: center;
   gap: clamp(2.5rem, 6vw, 6rem);
-  padding: clamp(3.5rem, 14vh, 9rem) clamp(1.25rem, 8vw, 7rem) 4rem;
+  /* Symmetric block padding, or the centring is fighting a heavier top gutter. */
+  padding: 3rem clamp(1.25rem, 6vw, 4rem);
 }
 
 /* The spread. Only opens when both halves genuinely fit: the form keeps its 26rem measure and the
