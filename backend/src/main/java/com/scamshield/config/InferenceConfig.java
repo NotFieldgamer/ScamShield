@@ -56,41 +56,47 @@ public class InferenceConfig {
     public EmbeddingService embeddingService(
             @Value("${app.embedding.model-path:/app/models/minilm.onnx}") String modelPath)
             throws Exception {
-        byte[] onnx = readEmbeddingModel(modelPath);
-        Path tokenizer = copyToTemp("/models/minilm_tokenizer.json");
-        return new EmbeddingService(onnx, tokenizer);
+        Path tokenizer = copyToTemp("/models/minilm_tokenizer.json", ".json");
+        return new EmbeddingService(resolveEmbeddingModel(modelPath), tokenizer);
     }
 
     /**
-     * The MiniLM model (~90MB) is not committed to the repo. In the Docker image it is downloaded
-     * at build time (from {@code EMBEDDING_MODEL_URL}) to {@code EMBEDDING_MODEL_PATH}, so read it
-     * from the filesystem there. For local dev and tests, fall back to a copy on the classpath if
-     * one is present — it is gitignored, so this fallback never depends on a committed model.
+     * Resolves the MiniLM model (~90MB, not committed) to a file path — never to a heap array.
+     * ONNX Runtime loads a path straight into native memory; reading the model into a
+     * {@code byte[]} first would put 90MB on the heap and briefly hold it twice (heap + native),
+     * which does not fit a 512MB container.
+     *
+     * <p>In the Docker image the model is downloaded at build time (from {@code EMBEDDING_MODEL_URL})
+     * to {@code EMBEDDING_MODEL_PATH}, so it is already a file. For local dev and tests it may only
+     * exist on the classpath; that copy is streamed to a temp file (an 8KB buffer, not the whole
+     * model), so this path stays heap-light too.
      */
-    private static byte[] readEmbeddingModel(String modelPath) throws IOException {
+    private static Path resolveEmbeddingModel(String modelPath) throws IOException {
         Path file = Path.of(modelPath);
         if (Files.isRegularFile(file)) {
-            return Files.readAllBytes(file);
+            return file;
         }
-        try (InputStream in = InferenceConfig.class.getResourceAsStream("/models/minilm.onnx")) {
-            if (in == null) {
-                throw new IOException(
-                        "MiniLM embedding model not found at '" + modelPath + "' (EMBEDDING_MODEL_PATH)"
-                        + " and not on the classpath. In the Docker image it is fetched at build time"
-                        + " from EMBEDDING_MODEL_URL — set that Space Variable, or point"
-                        + " EMBEDDING_MODEL_PATH at a local model file.");
-            }
-            return in.readAllBytes();
+        if (InferenceConfig.class.getResource("/models/minilm.onnx") == null) {
+            throw new IOException(
+                    "MiniLM embedding model not found at '" + modelPath + "' (EMBEDDING_MODEL_PATH)"
+                    + " and not on the classpath. In the Docker image it is fetched at build time"
+                    + " from EMBEDDING_MODEL_URL — set that build variable, or point"
+                    + " EMBEDDING_MODEL_PATH at a local model file.");
         }
+        return copyToTemp("/models/minilm.onnx", ".onnx");
     }
 
-    // djl's tokenizer needs a filesystem path; extract the classpath resource to a temp file.
-    private static Path copyToTemp(String resource) throws IOException {
+    /**
+     * Extracts a classpath resource to a temp file (djl's tokenizer and ONNX Runtime both want a
+     * path). {@link Files#copy} streams through a small buffer, so even the 90MB model never lands
+     * on the heap in one piece.
+     */
+    private static Path copyToTemp(String resource, String suffix) throws IOException {
         try (InputStream in = InferenceConfig.class.getResourceAsStream(resource)) {
             if (in == null) {
-                throw new IOException("missing tokenizer on classpath: " + resource);
+                throw new IOException("missing resource on classpath: " + resource);
             }
-            Path temp = Files.createTempFile("scamshield-tokenizer", ".json");
+            Path temp = Files.createTempFile("scamshield-", suffix);
             temp.toFile().deleteOnExit();
             Files.copy(in, temp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             return temp;

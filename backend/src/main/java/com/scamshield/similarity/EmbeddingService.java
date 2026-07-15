@@ -30,9 +30,15 @@ public class EmbeddingService implements AutoCloseable {
     private final HuggingFaceTokenizer tokenizer;
     private final Set<String> inputNames;
 
-    public EmbeddingService(byte[] onnxModel, Path tokenizerJson) throws OrtException, IOException {
+    /**
+     * Loads the model from a <em>file path</em> on purpose. ONNX Runtime reads the weights straight
+     * into native memory, so the ~90MB never occupies the Java heap — and is never transiently held
+     * twice (once as a heap {@code byte[]}, once natively), which is what a 512MB container cannot
+     * afford. Never re-introduce a {@code byte[]}-based constructor for this model.
+     */
+    public EmbeddingService(Path onnxModel, Path tokenizerJson) throws OrtException, IOException {
         this.env = OrtEnvironment.getEnvironment();
-        this.session = env.createSession(onnxModel, leanOptions());
+        this.session = env.createSession(onnxModel.toString(), leanOptions());
         this.tokenizer = HuggingFaceTokenizer.newInstance(tokenizerJson);
         this.inputNames = session.getInputNames();
     }
