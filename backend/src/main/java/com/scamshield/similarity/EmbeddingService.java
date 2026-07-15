@@ -32,9 +32,24 @@ public class EmbeddingService implements AutoCloseable {
 
     public EmbeddingService(byte[] onnxModel, Path tokenizerJson) throws OrtException, IOException {
         this.env = OrtEnvironment.getEnvironment();
-        this.session = env.createSession(onnxModel, new OrtSession.SessionOptions());
+        this.session = env.createSession(onnxModel, leanOptions());
         this.tokenizer = HuggingFaceTokenizer.newInstance(tokenizerJson);
         this.inputNames = session.getInputNames();
+    }
+
+    /**
+     * Session options tuned for a 512MB / 0.1-CPU host. Single-threaded (there is no parallelism to
+     * win on a tenth of a core) and with the CPU memory arena disabled — the arena pre-reserves large
+     * native blocks and never returns them, so turning it off trades a little speed for markedly lower
+     * resident memory, which is what keeps this transformer inside the container's RAM limit.
+     */
+    static OrtSession.SessionOptions leanOptions() throws OrtException {
+        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
+        opts.setInterOpNumThreads(1);
+        opts.setIntraOpNumThreads(1);
+        opts.setMemoryPatternOptimization(false);
+        opts.setCPUArenaAllocator(false);
+        return opts;
     }
 
     public int dimension() {

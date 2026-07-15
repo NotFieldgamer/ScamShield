@@ -28,12 +28,22 @@ public class OnnxClassifier implements AutoCloseable {
 
     public OnnxClassifier(byte[] modelBytes) throws OrtException {
         this.env = OrtEnvironment.getEnvironment();
-        this.session = env.createSession(modelBytes, new OrtSession.SessionOptions());
+        this.session = env.createSession(modelBytes, leanOptions());
         this.inputName = session.getInputNames().iterator().next();
 
         NodeInfo node = session.getInputInfo().get(inputName);
         long[] shape = ((TensorInfo) node.getInfo()).getShape();
         this.inputDim = (int) shape[shape.length - 1];
+    }
+
+    /** Single-threaded, arena-free session options — keeps the tight 512MB / 0.1-CPU host in budget. */
+    private static OrtSession.SessionOptions leanOptions() throws OrtException {
+        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
+        opts.setInterOpNumThreads(1);
+        opts.setIntraOpNumThreads(1);
+        opts.setMemoryPatternOptimization(false);
+        opts.setCPUArenaAllocator(false);
+        return opts;
     }
 
     public static OnnxClassifier fromClasspath(String resource) throws IOException, OrtException {

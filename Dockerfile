@@ -61,10 +61,14 @@ COPY --from=build --chown=app:app /workspace/build/extracted/app.jar ./app.jar
 # EXPOSE is documentation only — Render detects the bound port at runtime.
 EXPOSE 8080
 
-# JVM memory tuning for Render's 512MB / 0.1-CPU free tier. Without a cap the JVM assumes it can
-# use most of the host's RAM and OOM-crashes on the first request.
-#   MaxRAMPercentage=70  → heap stays inside the 512MB container (~250MB is JVM/native overhead)
-#   UseSerialGC          → single-threaded GC; the parallel/G1 collectors thrash on 0.1 CPU
-#   Xss512k              → smaller thread stacks to fit more threads in the tight footprint
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k"
+# JVM memory tuning for Render's 512MB / 0.1-CPU free tier. The heap is only part of the budget:
+# ONNX Runtime loads the ~90MB MiniLM model into NATIVE (off-heap) memory, which sits on top of the
+# heap. So the heap cap is deliberately low to leave room for it — heap + ONNX native + metaspace
+# must all fit in 512MB. (At 70% the heap alone reached ~358MB and the container OOM'd the moment
+# the embedding model loaded.)
+#   MaxRAMPercentage=35     → heap ≤ ~180MB, leaving headroom for the model's native allocations
+#   UseSerialGC             → single-threaded GC; parallel/G1 collectors thrash on 0.1 CPU
+#   Xss512k                 → smaller thread stacks to fit more threads in the tight footprint
+#   ExitOnOutOfMemoryError  → fail fast so Render restarts the instance instead of thrashing
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=35 -XX:+UseSerialGC -Xss512k -XX:+ExitOnOutOfMemoryError"
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]
