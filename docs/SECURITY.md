@@ -21,6 +21,12 @@ Stateless, bearer-token, no server sessions.
   not expose usable tokens. It lives only in an **httpOnly, Secure, SameSite=Strict cookie** scoped
   to `/api/v1/auth`, so client JavaScript can never read it and it cannot be driven cross-site.
   7-day lifetime, **rotating and single-use.**
+  A `Strict` cookie is only returned to the site that set it, so the frontend proxies
+  `/api/v1/auth/*` through its own origin (a Next.js rewrite) and the browser holds the cookie as
+  first-party. Without that proxy the cookie would be set on the API's origin and never sent back,
+  and `Strict` would have to be weakened to `None` to work at all. The proxy covers the auth routes
+  **only**: every other call goes directly to the API with a bearer header, preserving the caller's
+  IP for the analysis rate limit.
 - **Reuse detection.** Presenting an already-rotated refresh token is treated as replay: the entire
   token **family is revoked** and the request is rejected. Rotation is made atomic against
   concurrent replay by a conditional revoke (`UPDATE … WHERE id = ? AND revoked_at IS NULL`); if a

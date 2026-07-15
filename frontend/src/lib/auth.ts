@@ -20,10 +20,21 @@ const TOKEN_KEY = "ss_access_token";
 const EXP_KEY = "ss_token_expiry";
 const EVENT = "ss-auth-change";
 
-function store(token: string, expiresInSeconds: number) {
+/**
+ * Auth calls go to our own origin, which proxies them to the API (see next.config.mjs). That is
+ * what lets the API's SameSite=Strict refresh cookie work: the browser sees it set by the page's
+ * own origin. Everything else calls the API directly via API_BASE.
+ */
+const AUTH = "/api/v1/auth";
+
+/**
+ * @param notify whether to wake session listeners. A silent token renewal must not: it does not
+ *   change who is signed in, and re-entering the listener would re-fetch the session for nothing.
+ */
+function store(token: string, expiresInSeconds: number, notify = true) {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(EXP_KEY, String(Date.now() + expiresInSeconds * 1000));
-  window.dispatchEvent(new Event(EVENT));
+  if (notify) window.dispatchEvent(new Event(EVENT));
 }
 
 function clear() {
@@ -52,7 +63,7 @@ async function toApiError(res: Response): Promise<ApiError> {
 }
 
 export async function login(email: string, password: string): Promise<Me> {
-  const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+  const res = await fetch(`${AUTH}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include", // accept the httpOnly refresh cookie
@@ -65,7 +76,7 @@ export async function login(email: string, password: string): Promise<Me> {
 }
 
 export async function register(email: string, password: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/v1/auth/register`, {
+  const res = await fetch(`${AUTH}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -75,15 +86,59 @@ export async function register(email: string, password: string): Promise<void> {
 
 export async function logout(): Promise<void> {
   try {
-    await fetch(`${API_BASE}/api/v1/auth/logout`, { method: "POST", credentials: "include" });
+    await fetch(`${AUTH}/logout`, { method: "POST", credentials: "include" });
   } finally {
     clear();
   }
 }
 
+let refreshInFlight: Promise<boolean> | null = null;
+
+/**
+ * Trades the httpOnly refresh cookie for a new access token.
+ *
+ * Single-flighted deliberately. The API rotates the refresh token on every use and treats a
+ * second use of the old one as theft, revoking the whole token family. Two components refreshing
+ * at once would look exactly like that and sign the user out.
+ */
+function renewAccessToken(): Promise<boolean> {
+  refreshInFlight ??= requestRenewal().finally(() => {
+    refreshInFlight = null;
+  });
+  return refreshInFlight;
+}
+
+async function requestRenewal(): Promise<boolean> {
+  let res: Response;
+  try {
+    res = await fetch(`${AUTH}/refresh`, { method: "POST", credentials: "include" });
+  } catch {
+    return false; // offline or the API is asleep: keep the session and let the caller retry
+  }
+  if (!res.ok) {
+    clear(); // the cookie is gone, expired, or revoked — this session is genuinely over
+    return false;
+  }
+  const body = (await res.json()) as { accessToken: string; expiresInSeconds: number };
+  store(body.accessToken, body.expiresInSeconds, false);
+  return true;
+}
+
+/**
+ * The live access token, renewed from the refresh cookie when the current one has expired.
+ * Returns null when nobody is signed in. Anonymous visitors never reach the API: with no prior
+ * session there is no cookie to trade.
+ */
+export async function ensureToken(): Promise<string | null> {
+  const token = getToken();
+  if (token) return token;
+  if (typeof window === "undefined" || localStorage.getItem(EXP_KEY) === null) return null;
+  return (await renewAccessToken()) ? getToken() : null;
+}
+
 /** A fetch that carries the bearer token. Throws ApiError(401) when there is no live session. */
 export async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  const token = getToken();
+  const token = await ensureToken();
   if (!token) throw new ApiError(401, "Please sign in to continue.");
   const headers = new Headers(init.headers);
   headers.set("Authorization", `Bearer ${token}`);
@@ -173,13 +228,12 @@ export function useSession(): { me: Me | null; loading: boolean; refresh: () => 
   const [loading, setLoading] = useState(true);
 
   function load() {
-    if (!getToken()) {
-      setMe(null);
-      setLoading(false);
-      return;
-    }
     setLoading(true);
-    me()
+    // ensureToken, not getToken: on a reload or after the 15-minute access token expires, the
+    // refresh cookie can still restore the session. Checking only the stored token would sign
+    // the user out of a session the API still considers live.
+    ensureToken()
+      .then((token) => (token ? me() : null))
       .then(setMe)
       .catch(() => setMe(null))
       .finally(() => setLoading(false));

@@ -54,9 +54,9 @@ cp .env.example .env
 
 **Frontend:**
 
-| Variable                   | Default                 | What it is                  |
-| -------------------------- | ----------------------- | --------------------------- |
-| `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:8080` | Base URL of the backend API |
+| Variable                   | Default                 | What it is                                                                       |
+| -------------------------- | ----------------------- | -------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:8080` | Base URL of the backend API. Also the target of the `/api/v1/auth/*` proxy rewrite; inlined at build time, so changing it needs a rebuild |
 
 ## Run it locally
 

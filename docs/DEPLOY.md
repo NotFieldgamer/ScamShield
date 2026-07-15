@@ -16,9 +16,12 @@ build context. Render reads [`render.yaml`](../render.yaml) to provision the ser
 
 ## Free-tier notes (Render)
 
-- **512 MB RAM, 0.1 CPU.** The Dockerfile sets `-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k`
-  so the JVM fits inside 512 MB. Do not remove these — without a heap cap the JVM sizes its heap to
-  the host and OOM-crashes on the first request.
+- **512 MB RAM, 0.1 CPU.** The Dockerfile sets
+  `-XX:MaxRAMPercentage=45 -XX:+UseSerialGC -Xss512k -XX:+ExitOnOutOfMemoryError` so the JVM fits
+  inside 512 MB. Do not remove these — without a heap cap the JVM sizes its heap to the host and
+  OOM-crashes on the first request. The heap is only part of the budget: ONNX Runtime holds the
+  ~90 MB MiniLM model in **native** memory, which is why it is loaded from a file path and never
+  read into a `byte[]` (that needs 90 MB of heap and briefly holds the model twice).
 - **Sleeps after 15 minutes idle.** The first request after a sleep pays a cold start (JVM boot +
   model load). This is expected on the free tier.
 - **No credit card required.**
@@ -67,11 +70,43 @@ build context. Render reads [`render.yaml`](../render.yaml) to provision the ser
 
 5. **Verify:** `curl https://<your-service>.onrender.com/actuator/health` → `{"status":"UP"}`.
 
-## Point the frontend at the API
+## Deploy the frontend to Vercel
 
-On Vercel, set `NEXT_PUBLIC_API_BASE_URL` to the Render service URL
-(`https://<your-service>.onrender.com`) and redeploy. Make sure `CORS_ALLOWED_ORIGIN` on Render
-exactly matches the Vercel origin, or browser calls are rejected.
+Deploy the API first: step 2 needs its URL.
+
+1. **Import the repo.** Vercel dashboard → **Add New → Project** → pick this repository.
+
+2. **Set Root Directory to `frontend`.** This is a monorepo; Vercel defaults to the repo root, where
+   there is no Next.js app. The framework preset then auto-detects as Next.js — leave the build and
+   output settings alone. No `vercel.json` is needed.
+
+3. **Set one environment variable**, before the first deploy:
+
+   | Variable | Value |
+   | --- | --- |
+   | `NEXT_PUBLIC_API_BASE_URL` | `https://<your-service>.onrender.com` (no trailing slash, no path) |
+
+   It does two jobs: direct API calls read it at runtime, and it is the destination of the
+   `/api/v1/auth/*` proxy rewrite in [`next.config.mjs`](../frontend/next.config.mjs). **It is
+   inlined at build time** — after changing it you must **redeploy**, not just restart.
+
+4. **Deploy**, then copy the production URL.
+
+5. **Set `CORS_ALLOWED_ORIGIN` on Render** to that exact origin (`https://<project>.vercel.app`, no
+   trailing slash). The name is **singular**; `CORS_ALLOWED_ORIGINS` is silently ignored and the app
+   falls back to `http://localhost:3000`, which rejects every browser call.
+
+Only the production domain works. The backend allows exactly one origin, and every Vercel preview
+deployment gets a fresh URL, so previews cannot call the API.
+
+### Why auth is proxied
+
+The refresh cookie is `SameSite=Strict`, and `vercel.app` and `onrender.com` are different sites, so
+a cookie set by the API directly would never be sent back — sessions would die at the 15-minute
+access-token expiry. The frontend therefore routes `/api/v1/auth/*` through its own origin, making
+the cookie first-party. The proxy is deliberately limited to the auth routes: proxying the analysis
+endpoint would replace the caller's IP with Vercel's and collapse the per-IP rate limit into a
+single shared bucket.
 
 ## Updating
 
