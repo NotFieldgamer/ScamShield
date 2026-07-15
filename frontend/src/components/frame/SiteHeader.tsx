@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
+import { AccountMenu } from "./AccountMenu";
 import { ThemeToggle } from "./ThemeToggle";
 import { cn } from "@/lib/utils";
 
@@ -20,8 +21,8 @@ const NAV = [
 ];
 
 /**
- * The slim site header: logo + wordmark left, nav centered, theme toggle + Sign in right. On
- * scroll it gains a backdrop blur, a translucent fill, and a hairline bottom border.
+ * The slim site header: logo + wordmark left, nav centered, theme toggle + account control right.
+ * On scroll it gains a backdrop blur, a translucent fill, and a hairline bottom border.
  */
 export function SiteHeader({ sticky = true, forceScrolled = false }: SiteHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
@@ -54,9 +55,7 @@ export function SiteHeader({ sticky = true, forceScrolled = false }: SiteHeaderP
         </nav>
         <div className="frame-header__actions">
           <ThemeToggle />
-          <Link href="/login" className="btn-signin">
-            Sign in
-          </Link>
+          <AccountMenu />
         </div>
       </div>
     </header>

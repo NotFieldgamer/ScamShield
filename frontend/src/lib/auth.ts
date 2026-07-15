@@ -144,33 +144,65 @@ export async function reclusterCampaigns(): Promise<{ campaigns: number }> {
 import { useAuth } from "@clerk/nextjs";
 import { useCallback, useEffect, useState } from "react";
 
+export type Session = {
+  /** The local account, or null when signed out — or when `error` is set. */
+  me: Me | null;
+  loading: boolean;
+  /**
+   * Clerk's answer to "is there a session?", independent of whether our API could be reached.
+   * Distinct from `me` on purpose: a caller can be genuinely signed in while the API is down, and
+   * treating that as signed-out sends them to /login, which Clerk bounces straight back — a loop.
+   */
+  signedIn: boolean;
+  /** Set only when there IS a session but the API could not say who it belongs to. */
+  error: Error | null;
+  refresh: () => void;
+};
+
 /**
- * The signed-in user's local account, or null. Keeps the shape the rest of the app already expects.
+ * The signed-in user's local account, or null.
  *
  * Two sources, deliberately: Clerk answers "is there a session?", and our API answers "who is that
  * here, and what may they do?". The role must come from the API — a role claim in a client-held
  * token is not something to trust.
  */
-export function useSession(): { me: Me | null; loading: boolean; refresh: () => void } {
+export function useSession(): Session {
   const { isLoaded, isSignedIn } = useAuth();
   const [meState, setMe] = useState<Me | null>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(() => {
     if (!isLoaded) return; // Clerk still booting; stay in the loading state
     if (!isSignedIn) {
       setMe(null);
+      setError(null);
       setLoading(false);
       return;
     }
     setLoading(true);
     me()
-      .then(setMe)
-      .catch(() => setMe(null))
+      .then((account) => {
+        setMe(account);
+        setError(null);
+      })
+      .catch((cause: unknown) => {
+        // Kept, not swallowed. A failure here means the API rejected a live Clerk session — a
+        // misconfigured issuer, or a sleeping instance — and the user is owed that, not a silent
+        // demotion to "signed out".
+        setMe(null);
+        setError(cause instanceof Error ? cause : new Error(String(cause)));
+      })
       .finally(() => setLoading(false));
   }, [isLoaded, isSignedIn]);
 
   useEffect(load, [load]);
 
-  return { me: meState, loading, refresh: load };
+  return {
+    me: meState,
+    loading: loading || !isLoaded,
+    signedIn: Boolean(isSignedIn),
+    error,
+    refresh: load,
+  };
 }

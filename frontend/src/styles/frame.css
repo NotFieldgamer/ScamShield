@@ -134,6 +134,43 @@
   background: var(--accent-soft);
 }
 
+/* ---------- Account control (replaces Sign in once there is a session) ---------- */
+/* Sized to match .btn-signin's height exactly, so swapping one for the other as the session
+ * resolves does not shift the header. */
+.account-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.05rem;
+  height: 2.05rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+.account-trigger:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* The placeholder held while /me resolves: same box, no border, nothing to read. */
+.account-trigger--pending {
+  border-color: transparent;
+  cursor: default;
+}
+
+.account-initial {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--accent);
+}
+
 /* ---------- Theme toggle (single pill, sun/moon crossfade, no text labels) ---------- */
 .theme-toggle {
   position: relative;

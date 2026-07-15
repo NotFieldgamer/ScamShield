@@ -13,19 +13,21 @@ import { PanelSkeleton } from "@/components/features/Skeletons";
  * the caller's own id server-side.
  */
 export function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { me, loading } = useSession();
+  const { me, loading, signedIn, error, refresh } = useSession();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const loginHref = `/login?next=${encodeURIComponent(pathname)}`;
 
+  // Redirect on `signedIn`, never on `me`. Bouncing someone who *has* a Clerk session to /login
+  // just sends them back here the moment Clerk resolves, and round it goes.
   React.useEffect(() => {
-    if (!loading && !me) router.replace(loginHref);
-  }, [loading, me, router, loginHref]);
+    if (!loading && !signedIn) router.replace(loginHref);
+  }, [loading, signedIn, router, loginHref]);
 
   if (loading) {
     return <PanelSkeleton lines={2} label="Checking your session…" />;
   }
-  if (!me) {
+  if (!signedIn) {
     return (
       <div className="p7-empty">
         <p className="p7-empty-title">Sign in to continue</p>
@@ -35,6 +37,21 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
             Sign in
           </Link>{" "}
           to see it.
+        </p>
+      </div>
+    );
+  }
+  if (!me) {
+    return (
+      <div className="p7-empty">
+        <p className="p7-empty-title">We couldn&apos;t load your account</p>
+        <p className="p7-empty-body">
+          You are signed in, but the server did not confirm who you are
+          {error ? `: ${error.message}` : ""}. It may be waking up.{" "}
+          <button type="button" className="ss-link" onClick={refresh}>
+            Try again
+          </button>
+          .
         </p>
       </div>
     );
