@@ -4,15 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.verity.analysis.dto.AnalysisResponse;
 import com.verity.analysis.dto.AnalyzeRequest;
-import com.verity.auth.JwtService;
+import com.verity.support.ClerkTestAuth;
 import com.verity.auth.Role;
 import com.verity.auth.User;
 import com.verity.auth.UserRepository;
-import com.verity.support.TestSecrets;
+
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpEntity;
@@ -36,8 +37,9 @@ import org.testcontainers.utility.DockerImageName;
  * (exercised by {@link AnalysisPipelineIT}).
  */
 @Testcontainers
+@Import(ClerkTestAuth.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = TestSecrets.JWT_PROP)
+        properties = {ClerkTestAuth.ISSUER_PROP, ClerkTestAuth.SECRET_KEY_PROP})
 class AnalysisOwnershipIT {
 
     @Container
@@ -62,8 +64,6 @@ class AnalysisOwnershipIT {
     private TestRestTemplate rest;
     @Autowired
     private UserRepository users;
-    @Autowired
-    private JwtService jwtService;
 
     @Test
     void anotherUsersAnalysisByIdReturns404() {
@@ -112,7 +112,8 @@ class AnalysisOwnershipIT {
     }
 
     private String tokenForUser(String email) {
-        User user = users.save(new User(email, "{noop-unused}", Role.USER));
-        return jwtService.generateAccessToken(user);
+        String clerkId = "user_" + UUID.randomUUID().toString().replace("-", "");
+        users.save(new User(clerkId, email));
+        return ClerkTestAuth.tokenFor(clerkId);
     }
 }

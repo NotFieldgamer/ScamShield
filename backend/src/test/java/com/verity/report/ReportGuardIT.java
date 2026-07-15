@@ -5,15 +5,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.verity.auth.Role;
 import com.verity.auth.User;
 import com.verity.auth.UserRepository;
-import com.verity.auth.JwtService;
+import com.verity.support.ClerkTestAuth;
 import com.verity.report.dto.ReportRequest;
 import com.verity.report.dto.ReportSummary;
-import com.verity.support.TestSecrets;
+
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpEntity;
@@ -34,8 +35,9 @@ import org.testcontainers.utility.DockerImageName;
  * community label (never the training set); and an admin decision is the sole training signal.
  */
 @Testcontainers
+@Import(ClerkTestAuth.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = TestSecrets.JWT_PROP)
+        properties = {ClerkTestAuth.ISSUER_PROP, ClerkTestAuth.SECRET_KEY_PROP})
 class ReportGuardIT {
 
     @Container
@@ -47,8 +49,6 @@ class ReportGuardIT {
     private TestRestTemplate rest;
     @Autowired
     private UserRepository users;
-    @Autowired
-    private JwtService jwtService;
     @Autowired
     private ReportRepository reports;
     @Autowired
@@ -130,11 +130,17 @@ class ReportGuardIT {
 
     // --- helpers ------------------------------------------------------------------------------
 
+    /**
+     * A Clerk user whose local row already exists, aged to order. The role is set through the
+     * database on purpose: a Clerk account is always provisioned as USER, so an ADMIN can only ever
+     * come from a decision recorded here — which is exactly what these tests are proving.
+     */
     private String tokenForUser(String email, Role role, int ageDays) {
-        User user = users.save(new User(email, "{noop-unused}", role));
-        jdbc.update("UPDATE users SET created_at = now() - make_interval(days => ?) WHERE id = ?",
-                ageDays, user.getId());
-        return jwtService.generateAccessToken(user);
+        String clerkId = "user_" + UUID.randomUUID().toString().replace("-", "");
+        User user = users.save(new User(clerkId, email));
+        jdbc.update("UPDATE users SET created_at = now() - make_interval(days => ?), role = ? "
+                + "WHERE id = ?", ageDays, role.name(), user.getId());
+        return ClerkTestAuth.tokenFor(clerkId);
     }
 
     private UUID insertPosting() {

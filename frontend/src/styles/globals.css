@@ -8,6 +8,8 @@
 @import "./landing.css";
 @import "./dashboard.css";
 @import "./auth.css";
+/* After auth.css: dresses Clerk's sign-in/sign-up markup in the same tokens. */
+@import "./clerk.css";
 
 *,
 *::before,

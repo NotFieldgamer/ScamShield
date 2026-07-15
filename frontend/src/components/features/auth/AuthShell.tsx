@@ -1,6 +1,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { LogoMark } from "@/components/brand/LogoMark";
+import { AuthSpecimen } from "./AuthSpecimen";
 
 type AuthShellProps = {
   /** Page heading, set in the display serif. */
@@ -14,9 +15,15 @@ type AuthShellProps = {
 };
 
 /**
- * Shared chromeless layout for the auth screens. No SiteHeader: a home-linked logo mark on top,
- * then the heading, a one-line sub, the card, and an optional footer-links row. The card sits
- * offset toward the upper-left of the viewport (see .auth-shell) rather than centred in a void.
+ * Shared chromeless layout for the auth screens: a dossier opened flat.
+ *
+ * Left is the intake sheet — logo mark, heading, one-line sub, the form. Right is the specimen it
+ * is about, which is why the form sits left-of-centre rather than marooned mid-viewport: the page
+ * is a spread, and the empty half was always the other page of it.
+ *
+ * The specimen is the first thing dropped when space runs out (see .auth-specimen): below ~64rem
+ * the form is the only thing that matters, and it takes the full column rather than being pushed
+ * down the page by an illustration.
  */
 export function AuthShell({ heading, sub, children, footer }: AuthShellProps) {
   return (
@@ -30,6 +37,7 @@ export function AuthShell({ heading, sub, children, footer }: AuthShellProps) {
         {children}
         {footer ? <div className="auth-links">{footer}</div> : null}
       </div>
+      <AuthSpecimen />
     </main>
   );
 }

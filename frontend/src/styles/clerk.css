@@ -1,0 +1,117 @@
+/* clerk.css — the auth form, in our tokens.
+ *
+ * Clerk owns the sign-in/sign-up markup; we own how it looks. Everything here reads design tokens
+ * rather than literal colours, so the theme toggle moves these controls exactly as it moves ours.
+ * (Clerk's own `appearance.variables` cannot do this — it parses colours to build shade ramps and
+ * so rejects `var(...)`. See lib/clerk-appearance.ts.)
+ *
+ * Classes are applied via `appearance.elements`; the `.cl-*` selectors target Clerk's documented
+ * class API for the parts it does not let us name.
+ */
+
+/* Removed, not hidden. `ss-sr-only` would keep Clerk's header in the accessibility tree, and the
+ * page would announce two <h1> "Create your account" — ours and Clerk's. The footer badge goes the
+ * same way. */
+.clerk-gone {
+  display: none;
+}
+
+/* The page supplies the card; Clerk's is a transparent passthrough. */
+.clerk-card {
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  width: 100%;
+  padding: 0;
+}
+
+.cl-rootBox,
+.cl-cardBox {
+  width: 100%;
+  box-shadow: none;
+  border: 0;
+  background: transparent;
+}
+
+.clerk-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.clerk-input {
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: var(--text-base);
+}
+
+.clerk-input:focus,
+.clerk-input:focus-visible {
+  border-color: var(--accent);
+  /* Matches the global :focus-visible ring; never remove an outline without replacing it. */
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Codes are data: mono, like every other number in the product. */
+.clerk-otp {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.clerk-submit {
+  width: 100%;
+  justify-content: center;
+}
+
+.clerk-social {
+  justify-content: center;
+}
+
+.clerk-divider-line {
+  background: var(--border);
+}
+
+.clerk-divider-text {
+  color: var(--text-faint);
+  font-size: var(--text-xs);
+}
+
+/* Clerk's remaining internals: keep them on our surfaces rather than its defaults. */
+.cl-formFieldInputShowPasswordButton,
+.cl-formFieldAction {
+  color: var(--text-muted);
+}
+
+.cl-formFieldInputShowPasswordButton:hover,
+.cl-formFieldAction:hover {
+  color: var(--accent);
+}
+
+.cl-formFieldErrorText,
+.cl-formFieldWarningText {
+  color: var(--signal-danger);
+  font-size: var(--text-sm);
+}
+
+.cl-identityPreview,
+.cl-alert {
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+}
+
+.cl-headerTitle,
+.cl-headerSubtitle {
+  color: var(--text);
+}
+
+/* Clerk's development-mode badge. Nothing in the corner of our auth screen. */
+.cl-internal-1dauvpw,
+.cl-badge {
+  display: none;
+}

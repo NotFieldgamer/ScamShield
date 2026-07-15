@@ -5,11 +5,12 @@ import static org.assertj.core.api.Assertions.within;
 
 import com.verity.modelregistry.dto.ConfusionResponse;
 import com.verity.modelregistry.dto.ModelMetricsResponse;
-import com.verity.support.TestSecrets;
+import com.verity.support.ClerkTestAuth;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,8 +26,9 @@ import org.testcontainers.utility.DockerImageName;
  * exact confusion counts at each threshold can be asserted.
  */
 @Testcontainers
+@Import(ClerkTestAuth.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = TestSecrets.JWT_PROP)
+        properties = {ClerkTestAuth.ISSUER_PROP, ClerkTestAuth.SECRET_KEY_PROP})
 class ModelMetricsIT {
 
     @Container

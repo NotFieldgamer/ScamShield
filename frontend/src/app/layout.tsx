@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { type ReactNode } from "react";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Public_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import { Providers } from "./providers";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 import "@/styles/globals.css";
 
 // Body — Public Sans (USWDS): the typeface of official government records. Not Inter.
@@ -51,7 +53,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        {/* Inside <body>, per Clerk's requirement. */}
+        <ClerkProvider appearance={clerkAppearance}>
+          <Providers>{children}</Providers>
+        </ClerkProvider>
       </body>
     </html>
   );

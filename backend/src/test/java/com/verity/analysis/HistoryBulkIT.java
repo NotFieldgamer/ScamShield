@@ -6,16 +6,17 @@ import com.verity.analysis.dto.AnalysisResponse;
 import com.verity.analysis.dto.AnalysisSummary;
 import com.verity.analysis.dto.AnalyzeRequest;
 import com.verity.analysis.dto.BulkAnalysisResponse;
-import com.verity.auth.JwtService;
+import com.verity.support.ClerkTestAuth;
 import com.verity.auth.Role;
 import com.verity.auth.User;
 import com.verity.auth.UserRepository;
-import com.verity.support.TestSecrets;
+
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.core.io.ByteArrayResource;
@@ -41,8 +42,9 @@ import org.testcontainers.utility.DockerImageName;
  * a bulk upload scores every row and those rows then appear in that caller's history.
  */
 @Testcontainers
+@Import(ClerkTestAuth.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = TestSecrets.JWT_PROP)
+        properties = {ClerkTestAuth.ISSUER_PROP, ClerkTestAuth.SECRET_KEY_PROP})
 class HistoryBulkIT {
 
     @Container
@@ -67,8 +69,6 @@ class HistoryBulkIT {
     private TestRestTemplate rest;
     @Autowired
     private UserRepository users;
-    @Autowired
-    private JwtService jwtService;
 
     @Test
     void historyIsOwnerScopedAndRejectsAnonymous() {
@@ -176,7 +176,8 @@ class HistoryBulkIT {
     }
 
     private String tokenForUser(String email) {
-        User user = users.save(new User(email, "{noop-unused}", Role.USER));
-        return jwtService.generateAccessToken(user);
+        String clerkId = "user_" + UUID.randomUUID().toString().replace("-", "");
+        users.save(new User(clerkId, email));
+        return ClerkTestAuth.tokenFor(clerkId);
     }
 }

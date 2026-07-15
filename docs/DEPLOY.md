@@ -33,7 +33,10 @@ build context. Render reads [`render.yaml`](../render.yaml) to provision the ser
 2. A **Redis instance** (Upstash free tier) — optional; rate limiting fails open without it.
 3. A public **URL for the MiniLM model** (`minilm.onnx`, ~90 MB) that the build can `curl`. The
    model is not committed; host it as a GitHub release asset or any static URL.
-4. The frontend deployed on Vercel (or its origin known), for CORS.
+4. A **Clerk application** (free tier) at [dashboard.clerk.com](https://dashboard.clerk.com), with
+   email/password enabled. Note its publishable key (`pk_…`), secret key (`sk_…`), and issuer
+   (`https://<slug>.clerk.accounts.dev` — the base64 in the publishable key is that host).
+5. The frontend deployed on Vercel (or its origin known), for CORS.
 
 ## Deploy the API to Render
 
@@ -50,7 +53,8 @@ build context. Render reads [`render.yaml`](../render.yaml) to provision the ser
    | `SPRING_DATASOURCE_USERNAME` | your Postgres user |
    | `SPRING_DATASOURCE_PASSWORD` | your Postgres password |
    | `SPRING_DATA_REDIS_URL` | `rediss://default:…@….upstash.io:6379` (optional) |
-   | `JWT_SECRET` | ≥ 32-byte random key — `openssl rand -base64 48` |
+   | `CLERK_ISSUER` | `https://<slug>.clerk.accounts.dev` — tokens whose `iss` differs are rejected |
+   | `CLERK_SECRET_KEY` | `sk_…` from Clerk → API keys |
    | `CORS_ALLOWED_ORIGIN` | your Vercel origin, e.g. `https://verity.vercel.app` |
    | `EMBEDDING_MODEL_URL` | public URL of `minilm.onnx` (used at **build** time) |
 
@@ -80,15 +84,16 @@ Deploy the API first: step 2 needs its URL.
    there is no Next.js app. The framework preset then auto-detects as Next.js — leave the build and
    output settings alone. No `vercel.json` is needed.
 
-3. **Set one environment variable**, before the first deploy:
+3. **Set the environment variables**, before the first deploy:
 
    | Variable | Value |
    | --- | --- |
    | `NEXT_PUBLIC_API_BASE_URL` | `https://<your-service>.onrender.com` (no trailing slash, no path) |
+   | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | `pk_…` from Clerk → API keys |
+   | `CLERK_SECRET_KEY` | `sk_…` — the same key the API uses. Server-side only |
 
-   It does two jobs: direct API calls read it at runtime, and it is the destination of the
-   `/api/v1/auth/*` proxy rewrite in [`next.config.mjs`](../frontend/next.config.mjs). **It is
-   inlined at build time** — after changing it you must **redeploy**, not just restart.
+   All three are read at **build** time (`@clerk/nextjs` fails the build without the publishable
+   key), so after changing any of them you must **redeploy**, not just restart.
 
 4. **Deploy**, then copy the production URL.
 
@@ -99,14 +104,19 @@ Deploy the API first: step 2 needs its URL.
 Only the production domain works. The backend allows exactly one origin, and every Vercel preview
 deployment gets a fresh URL, so previews cannot call the API.
 
-### Why auth is proxied
+### Add your Vercel origin to Clerk
 
-The refresh cookie is `SameSite=Strict`, and `vercel.app` and `onrender.com` are different sites, so
-a cookie set by the API directly would never be sent back — sessions would die at the 15-minute
-access-token expiry. The frontend therefore routes `/api/v1/auth/*` through its own origin, making
-the cookie first-party. The proxy is deliberately limited to the auth routes: proxying the analysis
-endpoint would replace the caller's IP with Vercel's and collapse the per-IP rate limit into a
-single shared bucket.
+In the Clerk dashboard, add the Vercel production URL as an allowed origin / domain for the
+instance. Clerk's development keys (`pk_test_…`) are permissive about origins; **production keys
+(`pk_live_…`) are not**, and sign-in will fail until the domain is registered.
+
+### How auth flows
+
+Clerk holds the session on the Vercel origin and hands the browser a short-lived RS256 token. Every
+API call carries it as a bearer header straight to Render, which verifies it against Clerk's JWKS
+and pins the issuer. There is no auth proxy: the API has no cookie of its own, so nothing needs
+tunnelling through the frontend — and the analysis endpoint keeps seeing each caller's real IP,
+which is what its per-IP rate limit depends on.
 
 ## Updating
 

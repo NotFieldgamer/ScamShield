@@ -1,41 +1,53 @@
 # Security — Verity
 
-_Last reviewed: 2026-07-14._
+_Last reviewed: 2026-07-15._
 
-Verity owns its UI, but not its security primitives. Authentication uses Spring Security;
-passwords use BCrypt; tokens use a maintained JWT library (`jjwt`). We never hand-roll a token
-parser, a password hasher, or a session scheme. This document covers the auth design, the
-feedback-loop poisoning guards, and the known limitations we have chosen not to fix.
+Verity does not hand-roll security primitives. **Identity is Clerk's**: it holds the credentials,
+runs the sign-in flow, and issues the session tokens. This API never sees a password and stores no
+signing key. Verification is Spring Security's OAuth2 resource server — it fetches Clerk's JWKS,
+follows key rotation, and checks signature, expiry and issuer. We wrote none of that.
+
+What we do own is **authorisation**: who a caller is *here*, and what they may do. That is decided
+from our own database, never from a claim in a client-held token.
+
+This document covers the auth design, the feedback-loop poisoning guards, and the known limitations
+we have chosen not to fix.
 
 ---
 
 ## Authentication and sessions
 
-Stateless, bearer-token, no server sessions.
+Stateless, bearer-token, no server sessions. **Clerk issues; we verify.** (Migrated from local
+password auth on 2026-07-15; see V6.)
 
-- **Access token.** A JWT (HS256), **15-minute** lifetime, sent in the `Authorization: Bearer`
-  header. It carries the user id (subject) and role. The role authority comes from the signed
-  token, never from a client-supplied header. An expired or tampered token leaves the security
-  context empty; protected routes then return 401. _(Proven: `AuthFlowIT.anExpiredAccessTokenIsRejected`.)_
-- **Refresh token.** A 256-bit random string, **hashed (SHA-256) at rest** so a database leak does
-  not expose usable tokens. It lives only in an **httpOnly, Secure, SameSite=Strict cookie** scoped
-  to `/api/v1/auth`, so client JavaScript can never read it and it cannot be driven cross-site.
-  7-day lifetime, **rotating and single-use.**
-  A `Strict` cookie is only returned to the site that set it, so the frontend proxies
-  `/api/v1/auth/*` through its own origin (a Next.js rewrite) and the browser holds the cookie as
-  first-party. Without that proxy the cookie would be set on the API's origin and never sent back,
-  and `Strict` would have to be weakened to `None` to work at all. The proxy covers the auth routes
-  **only**: every other call goes directly to the API with a bearer header, preserving the caller's
-  IP for the analysis rate limit.
-- **Reuse detection.** Presenting an already-rotated refresh token is treated as replay: the entire
-  token **family is revoked** and the request is rejected. Rotation is made atomic against
-  concurrent replay by a conditional revoke (`UPDATE … WHERE id = ? AND revoked_at IS NULL`); if a
-  racing request already rotated the token, this affects zero rows and is treated exactly like
-  reuse. _(Proven: `AuthFlowIT.aRotatedRefreshTokenCannotBeReused`,
-  `reuseOfARotatedTokenRevokesTheWholeFamily`, `concurrentRotationOfTheSameTokenIsRejectedByTheConditionalRevoke`.)_
-- **Passwords.** BCrypt at cost **12**. Comparison is done by Spring Security's provider, never by
-  our code. Login returns one message for both "no such user" and "wrong password" so it does not
-  reveal which.
+- **Session token.** A Clerk-issued JWT (**RS256**), sent in the `Authorization: Bearer` header and
+  refreshed by Clerk's SDK in the browser. This API verifies it as an OAuth2 resource server and
+  holds **no signing key at all** — only a public one it fetches. An expired or tampered token
+  leaves the security context empty; protected routes then return 401.
+  _(Proven: `ClerkAuthIT.anExpiredTokenIsRejected`, `aTokenSignedByAnyoneElseIsRejected`.)_
+- **Key handling.** Keys come from Clerk's JWKS, fetched lazily on the first token, then cached, with
+  rotation followed automatically (`SecurityConfig.jwtDecoder`). Lazily on purpose: the eager
+  `withIssuerLocation` form resolves the discovery document inside `build()`, which would make every
+  cold start — and the whole application context — depend on Clerk being reachable at that instant.
+- **Issuer pinning.** Every token's `iss` must equal our configured `CLERK_ISSUER`. Signature alone
+  only proves *some* Clerk instance minted the token; the issuer check is what makes a token from
+  anybody else's Clerk instance useless here.
+- **Credentials, rotation, reuse detection, MFA.** Clerk's, now. It stores no password of ours
+  because we never receive one. The refresh-token family and its reuse detection (V1/V3) were
+  dropped in V6 along with the `refresh_tokens` table; there is no longer a token of ours to replay.
+- **No cookie of ours.** Clerk's session cookie lives on the frontend origin. This API is reached
+  only by bearer header, which is non-ambient and so cannot be driven by CSRF — which is why the
+  filter chain disables CSRF and why the old `/api/v1/auth/*` proxy (a workaround for a
+  `SameSite=Strict` cookie across two sites) no longer exists.
+- **Trust boundary — roles are ours.** A Clerk token can carry arbitrary custom claims, so a `role`
+  claim is attacker-influenceable and is never read. `ClerkJwtAuthenticationConverter` resolves the
+  token's subject to a local `users` row and takes the role **from the database**. A new Clerk user
+  is always provisioned `USER`; only a decision recorded here makes an `ADMIN`.
+  _(Proven: `ClerkAuthIT.everyAdminRouteRequiresTheAdminRole`,
+  `anAdminRoleInTheDatabaseNotTheTokenIsWhatGrantsAccess`.)_
+- **Email is read server-to-server.** Clerk's default token carries no email, and the browser's word
+  for it would be a claim about identity — the very thing being verified. It is fetched once from
+  Clerk's Backend API when the local row is provisioned (`ClerkApi.primaryEmail`), then stored.
 
 ## Authorization
 

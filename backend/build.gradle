@@ -28,11 +28,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // JWT: a maintained library, never a hand-rolled parser. api on the compile path,
-    // impl + jackson at runtime only (jjwt's recommended split).
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+    // Clerk issues the session tokens; we only verify them. This starter fetches and caches
+    // Clerk's JWKS, follows key rotation, and validates signature, issuer and expiry — none of
+    // which we hand-roll. (It replaces the jjwt-based local token issuance removed in V6.)
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
     // HuggingFace tokenizer for in-process MiniLM embedding (paired with ONNX Runtime).
     implementation 'ai.djl.huggingface:tokenizers:0.36.0'

@@ -22,8 +22,12 @@ services:
       # ---- Redis (rate limiting / hot-verdict cache, e.g. Upstash). Optional — fails open. ----
       - key: SPRING_DATA_REDIS_URL
         sync: false
-      # ---- Auth: HMAC-SHA256 signing key, >= 32 bytes. Required — the app won't start without it. ----
-      - key: JWT_SECRET
+      # ---- Auth (Clerk). Both required — the app won't start without them. ----
+      # Issuer, e.g. https://<slug>.clerk.accounts.dev. Tokens whose `iss` differs are rejected.
+      - key: CLERK_ISSUER
+        sync: false
+      # Backend API key (sk_...); reads a new user's email once, when their local row is created.
+      - key: CLERK_SECRET_KEY
         sync: false
       # ---- CORS: the single browser origin allowed to call the API (your Vercel frontend) ----
       - key: CORS_ALLOWED_ORIGIN
