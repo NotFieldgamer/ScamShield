@@ -40,7 +40,8 @@ cp .env.example .env
 
 | Variable                         | Required | Default (local)                               | What it is                                                                        |
 | -------------------------------- | -------- | --------------------------------------------- | --------------------------------------------------------------------------------- |
-| `JWT_SECRET`                     | **yes**  | _none — app won't start_                      | HMAC-SHA256 signing key, ≥ 32 bytes. Generate: `openssl rand -base64 48`          |
+| `CLERK_ISSUER`                   | **yes**  | _none — app won't start_                      | Clerk issuer, `https://<slug>.clerk.accounts.dev`. Every token's `iss` must match |
+| `CLERK_SECRET_KEY`               | **yes**  | _none — app won't start_                      | Clerk backend key (`sk_…`). Reads a new user's email once, when provisioning them |
 | `SPRING_DATASOURCE_URL`          | yes      | `jdbc:postgresql://localhost:5432/verity`     | Postgres + pgvector JDBC URL (add `?sslmode=require` for managed hosts)           |
 | `SPRING_DATASOURCE_USERNAME`     | yes      | `verity`                                      | Postgres user                                                                     |
 | `SPRING_DATASOURCE_PASSWORD`     | yes      | `verity`                                      | Postgres password                                                                 |
@@ -50,13 +51,17 @@ cp .env.example .env
 | `PORT`                           | no       | `8080`                                        | Port the API binds. Render injects this automatically                             |
 | `EMBEDDING_MODEL_PATH`           | no       | `/app/models/minilm.onnx`                     | Runtime path to `minilm.onnx`                                                     |
 | `EMBEDDING_MODEL_URL`            | no       | _(unset)_                                     | **Build-time only** — URL the Docker build downloads MiniLM from                  |
-| `JWT_ACCESS_TTL` / `REFRESH_TTL` | no       | `PT15M` / `P7D`                               | Token lifetimes (ISO-8601 durations)                                              |
+| `CLERK_JWKS_URI`                 | no       | `<CLERK_ISSUER>/.well-known/jwks.json`        | Where the signing keys are fetched from                                           |
 
 **Frontend:**
 
 | Variable                   | Default                 | What it is                                                                       |
 | -------------------------- | ----------------------- | -------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:8080` | Base URL of the backend API. Also the target of the `/api/v1/auth/*` proxy rewrite; inlined at build time, so changing it needs a rebuild |
+| `NEXT_PUBLIC_API_BASE_URL`          | `http://localhost:8080` | Base URL of the backend API                                                  |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | _none — build fails_    | Clerk publishable key (`pk_…`); ships to the browser by design               |
+| `CLERK_SECRET_KEY`                  | _none_                  | Clerk backend key (`sk_…`); server-side only. Put these in `frontend/.env.local` |
+
+All frontend variables are inlined at **build** time — changing one needs a rebuild, not a restart.
 
 ## Run it locally
 
@@ -67,7 +72,9 @@ docker run -d --name ss-pg -e POSTGRES_USER=verity -e POSTGRES_PASSWORD=verity \
 docker run -d --name ss-redis -p 6379:6379 redis:7-alpine
 
 # 2. Backend (Flyway applies the schema on startup; binds ${PORT:8080})
-JWT_SECRET=local-dev-only-jwt-secret-0123456789abcdef \
+# Both Clerk values come from dashboard.clerk.com → API keys.
+CLERK_ISSUER=https://<your-slug>.clerk.accounts.dev \
+CLERK_SECRET_KEY=sk_test_... \
 CORS_ALLOWED_ORIGIN=http://localhost:3000 \
   ./backend/gradlew -p backend bootRun
 # → http://localhost:8080/actuator/health

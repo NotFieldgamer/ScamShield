@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByEmail(String email);
+    /** Resolves a verified Clerk session token's subject to the local account row. */
+    Optional<User> findByClerkId(String clerkId);
 
-    boolean existsByEmail(String email);
+    Optional<User> findByEmail(String email);
 }

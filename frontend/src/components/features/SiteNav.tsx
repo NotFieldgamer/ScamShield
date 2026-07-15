@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 import { ThemeToggle } from "@/components/primitives/ThemeToggle";
-import { useSession, logout } from "@/lib/auth";
+import { useSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -16,6 +17,7 @@ const LINKS = [
 export function SiteNav() {
   const path = usePathname() ?? "";
   const { me } = useSession();
+  const { signOut } = useClerk();
   const isMod = me?.role === "ADMIN";
 
   return (
@@ -52,7 +54,11 @@ export function SiteNav() {
       </div>
       <div className="p7-nav-spacer" />
       {me ? (
-        <button type="button" className="ss-btn ss-btn-ghost" onClick={() => logout()}>
+        <button
+          type="button"
+          className="ss-btn ss-btn-ghost"
+          onClick={() => signOut({ redirectUrl: "/" })}
+        >
           Sign out
         </button>
       ) : (

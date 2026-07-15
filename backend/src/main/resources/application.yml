@@ -25,14 +25,23 @@ spring:
       max-file-size: 1MB
       max-request-size: 1MB
 
-# Auth configuration. The signing secret has no default — the app refuses to start
-# without JWT_SECRET, so a signing key is never committed to the repo.
+# Auth configuration. Clerk issues session tokens; this app only verifies them, so it holds no
+# signing key at all. Neither value has a default: without an issuer nothing can be verified and
+# every request would 401, and a deploy that boots green with all authentication dead is worse
+# than one that fails loudly. Missing means refuse to start.
 app:
-  jwt:
-    secret: ${JWT_SECRET:}
-    access-ttl: ${JWT_ACCESS_TTL:PT15M}   # 15-minute access token (ISO-8601 duration)
-  refresh:
-    ttl: ${REFRESH_TTL:P7D}               # 7-day rotating refresh token
+  clerk:
+    # Clerk instance's issuer, e.g. https://<slug>.clerk.accounts.dev. Its JWKS is discovered from
+    # here and every token's `iss` must match it, which is what makes tokens from any other Clerk
+    # instance useless against this API. No trailing slash: it is concatenated onto the JWKS path
+    # and compared verbatim against the token's `iss`.
+    issuer: ${CLERK_ISSUER}
+    # Where the signing keys live. Blank means "<issuer>/.well-known/jwks.json", which is Clerk's
+    # layout; override only if that ever stops being true.
+    jwks-uri: ${CLERK_JWKS_URI:}
+    # Backend API key (sk_...). Used once per user, to read their email when their local row is
+    # first provisioned. Never sent to the browser.
+    secret-key: ${CLERK_SECRET_KEY}
   cors:
     # Only the deployed frontend origin may call the API from a browser.
     allowed-origin: ${CORS_ALLOWED_ORIGIN:http://localhost:3000}
