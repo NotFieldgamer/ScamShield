@@ -187,7 +187,7 @@ export function Landing() {
             <img
               className="lp-proof-img"
               src="/verdict-sample.png"
-              alt="A Scam Shield verdict: a Likely-scam banner at 99.5% confidence, the posting with flagged phrases highlighted, and the ranked feature contributions with their coefficient-times-tf-idf weights."
+              alt="A Verity verdict: a Likely-scam banner at 99.5% confidence, the posting with flagged phrases highlighted, and the ranked feature contributions with their coefficient-times-tf-idf weights."
               width={1024}
               height={900}
               loading="lazy"

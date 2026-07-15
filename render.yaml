@@ -1,10 +1,10 @@
-# Render Blueprint for the Scam Shield API.
+# Render Blueprint for the Verity API.
 # On connect, Render reads this file and provisions the web service below. Secret values are NOT
 # stored here — every var with `sync: false` must be filled in from the Render dashboard.
 # Docs: https://render.com/docs/blueprint-spec
 services:
   - type: web
-    name: scam-shield-api
+    name: verity-api
     runtime: docker
     plan: free # 512 MB RAM, 0.1 CPU, sleeps after 15 min idle (cold start on next request)
     region: oregon # free tier: oregon | frankfurt | singapore | ohio | virginia

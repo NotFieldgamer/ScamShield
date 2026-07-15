@@ -1,5 +1,5 @@
 // Typed client for the Spring Boot analysis API. These types mirror
-// com.scamshield.analysis.dto.AnalysisResponse exactly — the screen renders only what the
+// com.verity.analysis.dto.AnalysisResponse exactly — the screen renders only what the
 // backend returns.
 
 export type Label = "LIKELY_SCAM" | "LIKELY_LEGITIMATE" | "UNCERTAIN";

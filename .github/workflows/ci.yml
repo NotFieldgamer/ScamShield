@@ -55,4 +55,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
-          tags: scam-shield-backend:ci
+          tags: verity-backend:ci

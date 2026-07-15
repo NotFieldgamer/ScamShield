@@ -3,7 +3,7 @@ import { SiteNav } from "@/components/features/SiteNav";
 import { AuditLogView } from "@/components/features/AuditLogView";
 
 export const metadata: Metadata = {
-  title: "Audit log · Scam Shield",
+  title: "Audit log · Verity",
   description: "The append-only audit trail.",
 };
 

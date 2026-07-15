@@ -1,4 +1,4 @@
-# Scam Shield — ML pipeline (Phase 2)
+# Verity — ML pipeline (Phase 2)
 
 Offline, reproducible training for the served fraud classifier, the salary-plausibility
 model, and the embedding seed. Everything runs on **Kaggle**, free tier. The Java backend

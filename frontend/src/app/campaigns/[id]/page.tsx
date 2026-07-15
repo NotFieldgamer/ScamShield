@@ -3,7 +3,7 @@ import { PageFrame } from "@/components/frame/PageFrame";
 import { CampaignDetailView } from "@/components/features/CampaignDetailView";
 
 export const metadata: Metadata = {
-  title: "Campaign · Scam Shield",
+  title: "Campaign · Verity",
   description: "A cluster of near-duplicate scam postings.",
 };
 

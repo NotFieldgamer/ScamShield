@@ -5,7 +5,7 @@ import { AuthShell, AuthCardFallback } from "@/components/features/auth/AuthShel
 import { LoginForm } from "@/components/features/LoginForm";
 
 export const metadata: Metadata = {
-  title: "Sign in · Scam Shield",
+  title: "Sign in · Verity",
   description: "Sign in to dispute a verdict or, for admins, work the report queue.",
 };
 

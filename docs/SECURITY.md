@@ -1,8 +1,8 @@
-# Security — Scam Shield
+# Security — Verity
 
 _Last reviewed: 2026-07-14._
 
-Scam Shield owns its UI, but not its security primitives. Authentication uses Spring Security;
+Verity owns its UI, but not its security primitives. Authentication uses Spring Security;
 passwords use BCrypt; tokens use a maintained JWT library (`jjwt`). We never hand-roll a token
 parser, a password hasher, or a session scheme. This document covers the auth design, the
 feedback-loop poisoning guards, and the known limitations we have chosen not to fix.

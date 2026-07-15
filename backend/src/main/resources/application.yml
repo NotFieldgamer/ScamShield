@@ -1,10 +1,10 @@
 spring:
   application:
-    name: scam-shield
+    name: verity
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/scamshield}
-    username: ${SPRING_DATASOURCE_USERNAME:scamshield}
-    password: ${SPRING_DATASOURCE_PASSWORD:scamshield}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/verity}
+    username: ${SPRING_DATASOURCE_USERNAME:verity}
+    password: ${SPRING_DATASOURCE_PASSWORD:verity}
   jpa:
     open-in-view: false
     hibernate:

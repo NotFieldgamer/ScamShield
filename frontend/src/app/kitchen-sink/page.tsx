@@ -46,9 +46,9 @@ function ThemeColumn({ theme }: { theme: Theme }) {
       <div className="ks-section">
         <p className="ks-section__label">Logo mark + wordmark</p>
         <div className="ks-row" style={{ color: "var(--accent)" }}>
-          <LogoMark size={24} title="Scam Shield (24px)" />
-          <LogoMark size={32} title="Scam Shield (32px)" />
-          <LogoMark size={48} title="Scam Shield (48px)" />
+          <LogoMark size={24} title="Verity (24px)" />
+          <LogoMark size={32} title="Verity (32px)" />
+          <LogoMark size={48} title="Verity (48px)" />
         </div>
         <div className="ks-row" style={{ marginTop: "0.85rem" }}>
           <Logo />

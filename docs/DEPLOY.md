@@ -1,4 +1,4 @@
-# Deploying Scam Shield
+# Deploying Verity
 
 The API runs on **Render** (Docker web service, free tier) and the frontend on **Vercel**. The two
 managed data stores (Postgres + pgvector, Redis) run on their own free tiers.
@@ -39,7 +39,7 @@ build context. Render reads [`render.yaml`](../render.yaml) to provision the ser
 
 1. **Connect the repo.** In the Render dashboard, choose **New → Blueprint** and select this GitHub
    repository. Render finds [`render.yaml`](../render.yaml) at the repo root and proposes the
-   `scam-shield-api` web service (Docker environment, health check `/actuator/health`).
+   `verity-api` web service (Docker environment, health check `/actuator/health`).
 
 2. **Set the secret env vars.** Every var in `render.yaml` is declared with `sync: false`, so Render
    prompts for a value on first deploy (nothing sensitive lives in the repo). Fill in:
@@ -51,7 +51,7 @@ build context. Render reads [`render.yaml`](../render.yaml) to provision the ser
    | `SPRING_DATASOURCE_PASSWORD` | your Postgres password |
    | `SPRING_DATA_REDIS_URL` | `rediss://default:…@….upstash.io:6379` (optional) |
    | `JWT_SECRET` | ≥ 32-byte random key — `openssl rand -base64 48` |
-   | `CORS_ALLOWED_ORIGIN` | your Vercel origin, e.g. `https://scam-shield.vercel.app` |
+   | `CORS_ALLOWED_ORIGIN` | your Vercel origin, e.g. `https://verity.vercel.app` |
    | `EMBEDDING_MODEL_URL` | public URL of `minilm.onnx` (used at **build** time) |
 
    > `PORT` is injected by Render automatically — do **not** set it. The app binds `${PORT:8080}`.

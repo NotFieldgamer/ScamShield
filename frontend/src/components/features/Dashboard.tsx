@@ -255,7 +255,7 @@ export function Dashboard() {
         <p className="dash-eyebrow">Dashboard</p>
         <h1 className="dash-title">Where do you want to go?</h1>
         <p className="dash-lede">
-          Everything Scam Shield can do, in one place. Open a card to see what it does, then jump in.
+          Everything Verity can do, in one place. Open a card to see what it does, then jump in.
         </p>
       </header>
 

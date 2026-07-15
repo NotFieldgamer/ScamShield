@@ -5,7 +5,7 @@ export function TopBar() {
   return (
     <header className="az-topbar">
       <Link href="/analyze" className="az-brand">
-        Scam Shield
+        Verity
       </Link>
       <ThemeToggle />
     </header>

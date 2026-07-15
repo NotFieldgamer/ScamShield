@@ -5,7 +5,7 @@ import { AuthShell, AuthCardFallback } from "@/components/features/auth/AuthShel
 import { RegisterForm } from "@/components/features/RegisterForm";
 
 export const metadata: Metadata = {
-  title: "Create account · Scam Shield",
+  title: "Create account · Verity",
   description: "Create an account to dispute a verdict and keep the postings you've analysed.",
 };
 

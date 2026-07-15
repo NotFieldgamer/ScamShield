@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #
-# Deployment build for the Scam Shield API (Render, Docker environment).
+# Deployment build for the Verity API (Render, Docker environment).
 # Built from the repository root with the repo root as the build context. Only the backend is
 # built into this image; the frontend deploys separately to Vercel.
 

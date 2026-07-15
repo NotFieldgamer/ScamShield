@@ -4,7 +4,7 @@ import { RequireAuth } from "@/components/features/RequireAuth";
 import { HistoryView } from "@/components/features/HistoryView";
 
 export const metadata: Metadata = {
-  title: "Your history · Scam Shield",
+  title: "Your history · Verity",
   description: "The postings and messages you've analyzed while signed in.",
 };
 

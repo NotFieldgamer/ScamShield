@@ -6,9 +6,17 @@ type LogoMarkProps = {
 };
 
 /**
- * Scam Shield mark — a shield holding a magnifier lens: protection plus inspection. Geometric,
+ * Verity mark — a shield holding a magnifier lens: protection plus inspection. Geometric,
  * single-weight strokes, monochrome; it inherits color via `currentColor` (the wordmark sets that
  * to the accent). Decorative by default (aria-hidden), because the wordmark carries the name.
+ *
+ * The geometry survived the Scam Shield → Verity rename deliberately: a lens inside a shield reads
+ * as "inspect, then protect", which is if anything a closer fit for Verity than for the old name.
+ *
+ * Do not add a glyph inside the lens (a check, a "V"). It was tried and measured: at the sizes this
+ * mark is actually used — 30px in the header, 24px at its smallest — the lens interior is under 9px
+ * across, and any second glyph rasterises to a smudge. The only way to fit one is a lighter stroke
+ * on that glyph, which breaks the single-weight rule above. The wordmark carries the name.
  */
 export function LogoMark({ size = 32, className, title }: LogoMarkProps) {
   return (

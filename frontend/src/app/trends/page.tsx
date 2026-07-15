@@ -3,7 +3,7 @@ import { PageFrame } from "@/components/frame/PageFrame";
 import { TrendsView } from "@/components/features/TrendsView";
 
 export const metadata: Metadata = {
-  title: "Trends · Scam Shield",
+  title: "Trends · Verity",
   description: "Which scam patterns are rising, aggregated from stored verdict features.",
 };
 

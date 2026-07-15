@@ -33,7 +33,7 @@ export function SiteFooter({ modelVersion = "logreg · v1" }: SiteFooterProps) {
         <div>
           <p className="frame-footer__col-title">What this is</p>
           <p className="frame-footer__disclaimer">
-            Scam Shield <strong>estimates risk from language patterns.</strong> It can be wrong. Not
+            Verity <strong>estimates risk from language patterns.</strong> It can be wrong. Not
             legal advice.
           </p>
         </div>
@@ -45,7 +45,7 @@ export function SiteFooter({ modelVersion = "logreg · v1" }: SiteFooterProps) {
             <a href={REPO_URL} target="_blank" rel="noreferrer noopener">
               GitHub ↗
             </a>
-            <span>© {year} Scam Shield</span>
+            <span>© {year} Verity</span>
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@ import { SiteNav } from "@/components/features/SiteNav";
 import { ReportForm } from "@/components/features/ReportForm";
 
 export const metadata: Metadata = {
-  title: "Report a verdict · Scam Shield",
+  title: "Report a verdict · Verity",
   description: "Dispute a verdict. Guarded against abuse of the feedback loop.",
 };
 

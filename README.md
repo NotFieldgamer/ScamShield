@@ -1,4 +1,4 @@
-# Scam Shield
+# Verity
 
 Paste a job posting or recruiter message and find out whether it's likely a scam — and see exactly
 which signals gave it away. A Spring Boot API scores the text with an in-process ONNX model that
@@ -24,8 +24,8 @@ scam — 87% confident"_), never a flat accusation.
 ## Clone
 
 ```bash
-git clone <repo-url> ScamShield
-cd ScamShield
+git clone <repo-url> Verity
+cd Verity
 ```
 
 ## Environment variables
@@ -41,9 +41,9 @@ cp .env.example .env
 | Variable                         | Required | Default (local)                               | What it is                                                                        |
 | -------------------------------- | -------- | --------------------------------------------- | --------------------------------------------------------------------------------- |
 | `JWT_SECRET`                     | **yes**  | _none — app won't start_                      | HMAC-SHA256 signing key, ≥ 32 bytes. Generate: `openssl rand -base64 48`          |
-| `SPRING_DATASOURCE_URL`          | yes      | `jdbc:postgresql://localhost:5432/scamshield` | Postgres + pgvector JDBC URL (add `?sslmode=require` for managed hosts)           |
-| `SPRING_DATASOURCE_USERNAME`     | yes      | `scamshield`                                  | Postgres user                                                                     |
-| `SPRING_DATASOURCE_PASSWORD`     | yes      | `scamshield`                                  | Postgres password                                                                 |
+| `SPRING_DATASOURCE_URL`          | yes      | `jdbc:postgresql://localhost:5432/verity`     | Postgres + pgvector JDBC URL (add `?sslmode=require` for managed hosts)           |
+| `SPRING_DATASOURCE_USERNAME`     | yes      | `verity`                                      | Postgres user                                                                     |
+| `SPRING_DATASOURCE_PASSWORD`     | yes      | `verity`                                      | Postgres password                                                                 |
 | `CORS_ALLOWED_ORIGIN`            | yes      | `http://localhost:3000`                       | The one browser origin allowed to call the API                                    |
 | `SPRING_DATA_REDIS_URL`          | no       | _(host/port below)_                           | Full Redis URL, e.g. Upstash `rediss://…`. Rate limiting fails open without Redis |
 | `REDIS_HOST` / `REDIS_PORT`      | no       | `localhost` / `6379`                          | Local Redis when not using a URL                                                  |
@@ -62,8 +62,8 @@ cp .env.example .env
 
 ```bash
 # 1. Data stores (Postgres + pgvector, Redis)
-docker run -d --name ss-pg -e POSTGRES_USER=scamshield -e POSTGRES_PASSWORD=scamshield \
-  -e POSTGRES_DB=scamshield -p 5432:5432 pgvector/pgvector:pg16
+docker run -d --name ss-pg -e POSTGRES_USER=verity -e POSTGRES_PASSWORD=verity \
+  -e POSTGRES_DB=verity -p 5432:5432 pgvector/pgvector:pg16
 docker run -d --name ss-redis -p 6379:6379 redis:7-alpine
 
 # 2. Backend (Flyway applies the schema on startup; binds ${PORT:8080})
@@ -73,7 +73,7 @@ CORS_ALLOWED_ORIGIN=http://localhost:3000 \
 # → http://localhost:8080/actuator/health
 
 # 3. Seed the confirmed-scam corpus (for the "similar scams" panel)
-docker exec -i ss-pg psql -U scamshield -d scamshield < ml/out/known_scams_seed.sql
+docker exec -i ss-pg psql -U verity -d verity < ml/out/known_scams_seed.sql
 
 # 4. Frontend
 npm --prefix frontend install
@@ -112,7 +112,7 @@ persist + audit. The served model is linear on purpose: its per-feature contribu
 ## Project layout
 
 ```
-backend/    Spring Boot API (the mass of the project) — see backend/src/main/java/com/scamshield
+backend/    Spring Boot API (the mass of the project) — see backend/src/main/java/com/verity
 frontend/   Next.js app
 ml/         Offline Kaggle notebooks + model export
 docs/       DEPLOY.md, MODEL_CARD.md, SECURITY.md

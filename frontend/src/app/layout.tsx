@@ -32,13 +32,13 @@ const mono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Scam Shield",
+  title: "Verity",
   description: "Paste any job post. Find out if it's fake, and see exactly what gave it away.",
 };
 
 // Runs before first paint: applies the stored (or system) theme to <html> so there is no
 // white flash. localStorage first, then prefers-color-scheme, defaulting to dark.
-const themeScript = `(function(){try{var k='scam-shield-theme';var t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`;
+const themeScript = `(function(){try{var k='verity-theme';var t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

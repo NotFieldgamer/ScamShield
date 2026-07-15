@@ -1,8 +1,8 @@
-# Model card — Scam Shield fraud classifier
+# Model card — Verity fraud classifier
 
 _Last reviewed: 2026-07-14._
 
-This card describes the model that Scam Shield serves on the request path. It follows the spirit of
+This card describes the model that Verity serves on the request path. It follows the spirit of
 Google's Model Cards: what the model does, how well it does it, where it fails, and who it could
 harm if it is wrong. If any claim here stops being true, fix the claim.
 

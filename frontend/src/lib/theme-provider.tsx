@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
 export type Theme = "dark" | "light";
-export const THEME_STORAGE_KEY = "scam-shield-theme";
+export const THEME_STORAGE_KEY = "verity-theme";
 
 type ThemeContextValue = {
   theme: Theme;

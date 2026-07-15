@@ -21,7 +21,7 @@ export function SiteNav() {
   return (
     <nav className="p7-nav">
       <Link href="/" className="p7-brand">
-        Scam Shield
+        Verity
       </Link>
       <div className="p7-nav-links">
         {LINKS.map((l) => (

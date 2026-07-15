@@ -3,7 +3,7 @@ import { PageFrame } from "@/components/frame/PageFrame";
 import { ModelExplorer } from "@/components/features/ModelExplorer";
 
 export const metadata: Metadata = {
-  title: "Model performance · Scam Shield",
+  title: "Model performance · Verity",
   description:
     "The served model's precision, recall, and errors — and a threshold slider showing the live tradeoff between blocking real jobs and letting scams through.",
 };

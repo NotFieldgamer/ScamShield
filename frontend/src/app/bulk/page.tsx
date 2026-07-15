@@ -4,7 +4,7 @@ import { RequireAuth } from "@/components/features/RequireAuth";
 import { BulkScanView } from "@/components/features/BulkScanView";
 
 export const metadata: Metadata = {
-  title: "Bulk scan · Scam Shield",
+  title: "Bulk scan · Verity",
   description: "Score a CSV of postings in one pass, through the same pipeline as a single paste.",
 };
 

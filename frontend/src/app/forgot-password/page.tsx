@@ -4,8 +4,8 @@ import { AuthShell } from "@/components/features/auth/AuthShell";
 import { ForgotPasswordForm } from "@/components/features/ForgotPasswordForm";
 
 export const metadata: Metadata = {
-  title: "Reset password · Scam Shield",
-  description: "Recover access to your Scam Shield account.",
+  title: "Reset password · Verity",
+  description: "Recover access to your Verity account.",
 };
 
 export default function ForgotPasswordPage() {

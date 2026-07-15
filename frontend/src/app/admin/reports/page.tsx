@@ -3,7 +3,7 @@ import { SiteNav } from "@/components/features/SiteNav";
 import { ModerationQueue } from "@/components/features/ModerationQueue";
 
 export const metadata: Metadata = {
-  title: "Moderation · Scam Shield",
+  title: "Moderation · Verity",
   description: "The admin queue of community reports.",
 };
 

@@ -22,7 +22,7 @@ export function AuthShell({ heading, sub, children, footer }: AuthShellProps) {
   return (
     <main className="auth-shell">
       <div className="auth-inner">
-        <Link href="/" className="auth-mark" aria-label="Scam Shield — home">
+        <Link href="/" className="auth-mark" aria-label="Verity — home">
           <LogoMark size={40} />
         </Link>
         <h1 className="auth-head">{heading}</h1>
